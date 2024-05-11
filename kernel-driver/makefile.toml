@@ -1,0 +1,40 @@
+[env.development]
+TARGET_PATH = "target/debug"
+ 
+[env.release]
+TARGET_PATH = "target/release"
+BUILD_FLAGS = "--release"
+
+[tasks.build-driver]
+script = [
+    "cargo build %BUILD_FLAGS%"
+]
+ 
+[tasks.rename-driver]
+dependencies = ["build-driver"]
+ignore_errors = true
+script = [
+    "cd %TARGET_PATH%",
+    "rename kernel_driver.dll kernel_driver.sys",
+]
+
+[tasks.sign-driver]
+dependencies = ["build-driver", "rename-driver"]
+script = [
+    "\"%WIN_SDK_TOOLS%\\makecert.exe\" -r -pe -ss PrivateCertStore -n \"CN=kernel_driver\" kernel_driver.cer",
+    "\"%WIN_SDK_TOOLS%\\signtool.exe\" sign /fd sha256 /v /s PrivateCertStore /n \"kernel_driver\" /t http://timestamp.digicert.com /a %TARGET_PATH%/kernel_driver.sys",
+]
+
+[tasks.deploy]
+dependencies = ["sign-driver"]
+script = [
+    "mkdir bin",
+    "move kernel_driver.cer bin\\kernel_driver.cer",
+    "move %TARGET_PATH%\\kernel_driver.sys bin\\kernel_driver.sys"
+]
+
+[tasks.cleanup]
+script = [
+    "rmdir /s /q bin",
+    "cargo clean",
+]
