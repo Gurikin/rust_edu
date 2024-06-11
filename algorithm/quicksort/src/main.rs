@@ -3,13 +3,14 @@ use std::time::{Duration, Instant};
 
 
 fn main() {
-    const SIZE: usize = 10000000;
-    let mut arr: Vec<u32> = (0..SIZE).map(|_| rand::thread_rng().gen_range(1..10000000)).collect();
+    const SIZE: usize = 1000;
+    let mut arr: Vec<u32> = (0..SIZE).map(|_| rand::thread_rng().gen_range(1..SIZE as u32)).collect();
     let start = Instant::now();
     quicksort(&mut arr);
     let duration: Duration = start.elapsed();
 
     println!("Time elapsed in quicksort() is: {:?}", duration);
+    // printarr(&mut arr, "Sorted array: ");
 }
 
 fn quicksort<T: Ord>(arr: &mut [T]) {
@@ -37,10 +38,10 @@ fn partition<T: Ord>(arr: &mut [T], l: isize, r: isize) -> isize {
     return q;
 }
 
-// fn printarr(arr: &[u32], str: &str) {
-//     print!("{}", str);
-//     for i in 0..arr.len() {
-//         println!("{}", arr[i]);
-//     }
-//     println!();
-// }
+ fn printarr(arr: &[u32], str: &str) {
+     println!("{}", str);
+     for i in 0..arr.len() {
+         println!("{}", arr[i]);
+     }
+     println!();
+ }
