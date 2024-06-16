@@ -1,16 +1,17 @@
 use rand::prelude::*;
 use std::time::{Duration, Instant};
 
-
 fn main() {
     const SIZE: usize = 1000;
-    let mut arr: Vec<u32> = (0..SIZE).map(|_| rand::thread_rng().gen_range(1..SIZE as u32)).collect();
+    let mut arr: Vec<u32> = (0..SIZE)
+        .map(|_| rand::thread_rng().gen_range(1..SIZE as u32))
+        .collect();
     let start = Instant::now();
     quicksort(&mut arr);
     let duration: Duration = start.elapsed();
 
     println!("Time elapsed in quicksort() is: {:?}", duration);
-    // printarr(&mut arr, "Sorted array: ");
+    printarr(&arr, "Sorted array: ");
 }
 
 fn quicksort<T: Ord>(arr: &mut [T]) {
@@ -20,8 +21,8 @@ fn quicksort<T: Ord>(arr: &mut [T]) {
 fn _quicksort<T: Ord>(arr: &mut [T], l: isize, r: isize) {
     if l <= r {
         let q = partition(arr, l, r);
-        _quicksort(arr, l, (q - 1) as isize);
-        _quicksort(arr, (q + 1) as isize, r);
+        _quicksort(arr, l, q - 1);
+        _quicksort(arr, q + 1, r);
     }
 }
 
@@ -35,13 +36,13 @@ fn partition<T: Ord>(arr: &mut [T], l: isize, r: isize) -> isize {
         }
     }
     arr.swap(q as usize, r as usize);
-    return q;
+    q
 }
 
- fn printarr(arr: &[u32], str: &str) {
-     println!("{}", str);
-     for i in 0..arr.len() {
-         println!("{}", arr[i]);
-     }
-     println!();
- }
+fn printarr(arr: &[u32], str: &str) {
+    println!("{}", str);
+    for i in arr {
+        println!("{}", i);
+    }
+    println!();
+}
