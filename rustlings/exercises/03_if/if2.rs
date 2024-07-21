@@ -1,9 +1,11 @@
-// TODO: Fix the compiler error on this function.
+// DONE: Fix the compiler error on this function.
 fn foo_if_fizz(fizzish: &str) -> &str {
     if fizzish == "fizz" {
         "foo"
+    } else if fizzish == "fuzz" {
+        "bar"
     } else {
-        1
+        "baz"
     }
 }
 
@@ -11,7 +13,7 @@ fn main() {
     // You can optionally experiment here.
 }
 
-// TODO: Read the tests to understand the desired behavior.
+// DONE: Read the tests to understand the desired behavior.
 // Make all tests pass without changing them.
 #[cfg(test)]
 mod tests {
