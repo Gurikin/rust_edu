@@ -29,9 +29,11 @@ fn switch_off(pin: &mut OutputPin) {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    println!("Blinking an LED on a {}.", DeviceInfo::new()?.model());
+    //Для повышения интереса эмулировал работу с устройствами через GPIO на Малинке
+    println!("Smart home devices emulation on a {}.", DeviceInfo::new()?.model());
 
     let mut pin: OutputPin = Gpio::new()?.get(GPIO_LED)?.into_output();
+    println!("TypeId: {}", pin.pin());
 
     // Blink the LED by setting the pin's logic level high for 500 ms.
     loop {
