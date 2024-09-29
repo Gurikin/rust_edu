@@ -1,4 +1,3 @@
-use rppal::gpio::OutputPin;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -8,7 +7,6 @@ pub struct Device {
     pub name: String,
     pub description: String,
     pub data: HashMap<String, String>,
-    pub device: OutputPin,
 }
 
 #[derive(Debug)]
@@ -40,3 +38,5 @@ impl Device {
         }
     }
 }
+
+
