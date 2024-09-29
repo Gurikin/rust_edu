@@ -1,3 +1,2 @@
-pub use self::device::Device;
-pub use self::device::DeviceType;
+pub use self::device::*;
 mod device;

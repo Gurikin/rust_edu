@@ -1,12 +1,11 @@
-use std::collections::HashMap;
 use std::fmt;
+use std::ops::Add;
 
-pub struct Device {
+pub struct DeviceInfo {
     pub id: u8,
-    pub device_type: DeviceType,
     pub name: String,
+    pub device_type: DeviceType,
     pub description: String,
-    pub data: HashMap<String, String>,
 }
 
 #[derive(Debug)]
@@ -23,20 +22,70 @@ impl fmt::Display for DeviceType {
     }
 }
 
-impl Device {
-    pub fn description(&self) {
-        println!("Device description: {}", self.description);
-    }
-    pub fn get_data(&self) {
-        println!("Device data:");
-        println!("\tId:\t{}", self.id);
-        println!("\tName:\t{}", self.name);
-        println!("\tType:\t{}", self.device_type);
-        println!("\tData:");
-        for datum in &self.data {
-            println!("\t\t{}:\t{}", datum.0, datum.1);
-        }
+impl DeviceInfo {
+    pub fn get_data(&self) -> String {
+        String::from("Device data:\n")
+            .add("\tId:\t")
+            .add(self.id.to_string().trim())
+            .add("\tName:\t")
+            .add(self.name.trim())
+            .add("\tType:\t")
+            .add(self.device_type.to_string().trim())
+            .add("\tDescription:\t")
+            .add(self.description.to_string().trim())
     }
 }
 
+// Пользовательские устройства:
+pub struct SmartSocket {
+    pub info: DeviceInfo,
+    pub is_switch_on: bool,
+    pub current_power: u32,
+}
+pub struct SmartThermometer {
+    pub info: DeviceInfo,
+    pub temperature: u32,
+}
 
+pub trait Device {
+    fn get_name(&self) -> String;
+    fn get_state(&self) -> String;
+}
+
+impl Device for SmartSocket {
+    fn get_name(&self) -> String {
+        String::from(&self.info.name)
+    }
+
+    fn get_state(&self) -> String {
+        self.info
+            .get_data()
+            .add("\tIs on:\t")
+            .add(self.is_switch_on.to_string().trim())
+            .add("\tCurrent power:\t")
+            .add(self.current_power.to_string().trim())
+            .add("\n")
+    }
+}
+
+impl Device for SmartThermometer {
+    fn get_name(&self) -> String {
+        String::from(&self.info.name)
+    }
+    fn get_state(&self) -> String {
+        self.info
+            .get_data()
+            .add("\tTemperature:\t")
+            .add(self.temperature.to_string().trim())
+            .add("\n")
+    }
+}
+
+// Пользовательские поставщики информации об устройствах.
+// Могут как хранить устройства, так и заимствывать.
+pub struct OwningDeviceInfoProvider<T: Device> {
+    device: T,
+}
+pub struct BorrowingDeviceInfoProvider<'a> {
+    socket: &'a dyn Device,
+}
