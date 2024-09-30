@@ -1,4 +1,4 @@
-use crate::devices::{Device, DeviceInfo, DeviceType, SmartSocket, SmartThermometer};
+use crate::devices::{DeviceInfoProvider, DeviceInfo, DeviceType, SmartSocket, SmartThermometer, OwningDeviceInfoProvider, BorrowingDeviceInfoProvider};
 use crate::smart_house_mod::{SmartHouse, Space};
 
 mod devices;
@@ -9,7 +9,7 @@ mod smart_house_mod;
 // use crate::devices::{Device, DeviceType};
 
 fn main() {
-    let smart_socket1: Box<dyn Device> = Box::new(SmartSocket {
+    let smart_socket1: Box<dyn DeviceInfoProvider> = Box::new(SmartSocket {
         info: DeviceInfo {
             id: 0,
             name: "Smart Socket 1".to_string(),
@@ -19,7 +19,7 @@ fn main() {
         is_switch_on: false,
         current_power: 0,
     });
-    let smart_socket1_2: Box<dyn Device> = Box::new(SmartSocket {
+    let smart_socket1_2: Box<dyn DeviceInfoProvider> = Box::new(SmartSocket {
         info: DeviceInfo {
             id: 0,
             name: "Smart Socket 2".to_string(),
@@ -29,7 +29,7 @@ fn main() {
         is_switch_on: true,
         current_power: 230,
     });
-    let smart_socket2: Box<dyn Device> = Box::new(SmartSocket {
+    let smart_socket2: Box<dyn DeviceInfoProvider> = Box::new(SmartSocket {
         info: DeviceInfo {
             id: 0,
             name: "Smart Socket 2".to_string(),
@@ -39,7 +39,7 @@ fn main() {
         is_switch_on: true,
         current_power: 220,
     });
-    let therm: Box<dyn Device> = Box::new(SmartThermometer {
+    let therm: Box<dyn DeviceInfoProvider> = Box::new(SmartThermometer {
         info: DeviceInfo {
             id: 0,
             name: "Street Thermometer".to_string(),
@@ -60,8 +60,17 @@ fn main() {
             .for_each(|d| print!("{},\t", d));
         println!();
     }
-    let report = smart_house.create_report();
+    let info_provider_1 = OwningDeviceInfoProvider {
+        device: smart_socket1,
+    };
+    let report = smart_house.create_report(info_provider_1);
     println!("{}", report);
+
+    let info_provider_2 = BorrowingDeviceInfoProvider {
+        device: &therm,
+    };
+    let report2 = smart_house.create_report(info_provider_2);
+    println!("{}", report2);
 }
 
 // fn main() {

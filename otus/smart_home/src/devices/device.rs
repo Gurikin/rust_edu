@@ -47,12 +47,12 @@ pub struct SmartThermometer {
     pub temperature: u32,
 }
 
-pub trait Device {
+pub trait DeviceInfoProvider {
     fn get_name(&self) -> String;
     fn get_state(&self) -> String;
 }
 
-impl Device for SmartSocket {
+impl DeviceInfoProvider for SmartSocket {
     fn get_name(&self) -> String {
         String::from(&self.info.name)
     }
@@ -68,7 +68,7 @@ impl Device for SmartSocket {
     }
 }
 
-impl Device for SmartThermometer {
+impl DeviceInfoProvider for SmartThermometer {
     fn get_name(&self) -> String {
         String::from(&self.info.name)
     }
@@ -83,9 +83,9 @@ impl Device for SmartThermometer {
 
 // Пользовательские поставщики информации об устройствах.
 // Могут как хранить устройства, так и заимствывать.
-pub struct OwningDeviceInfoProvider<T: Device> {
-    device: T,
+pub struct OwningDeviceInfoProvider<T: DeviceInfoProvider> {
+    pub device: Box<T>,
 }
 pub struct BorrowingDeviceInfoProvider<'a> {
-    socket: &'a dyn Device,
+    pub device: &'a Box<dyn DeviceInfoProvider>,
 }

@@ -5,17 +5,17 @@ use std::ops::{Add, Deref};
 
 pub struct Space {
     pub name: String,
-    pub devices: BTreeMap<String, Box<dyn Device>>,
+    pub devices: BTreeMap<String, Box<dyn DeviceInfoProvider>>,
 }
 
 impl Space {
-    pub fn from_devices_vec(cnt: u32, devices_vec: Vec<Box<dyn Device>>) -> Self {
+    pub fn from_devices_vec(cnt: u32, devices_vec: Vec<Box<dyn DeviceInfoProvider>>) -> Self {
         let name = String::from("room_#").add(cnt.to_string().trim());
         let devices = devices_vec.into_iter().map(|d| (d.get_name(), d)).collect();
         Self { name, devices }
     }
 
-    pub fn from_devices_map(cnt: u32, devices: BTreeMap<String, Box<dyn Device>>) -> Self {
+    pub fn from_devices_map(cnt: u32, devices: BTreeMap<String, Box<dyn DeviceInfoProvider>>) -> Self {
         let name = String::from("room_#").add(cnt.to_string().trim());
         Self { name, devices }
     }
@@ -28,7 +28,7 @@ impl Space {
             .collect::<Vec<String>>()
     }
 
-    pub fn get_devices(&self) -> &BTreeMap<String, Box<dyn Device>> {
+    pub fn get_devices(&self) -> &BTreeMap<String, Box<dyn DeviceInfoProvider>> {
         &self.devices
     }
 }
