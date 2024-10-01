@@ -15,7 +15,10 @@ impl Space {
         Self { name, devices }
     }
 
-    pub fn from_devices_map(cnt: u32, devices: BTreeMap<String, Box<dyn DeviceInfoProvider>>) -> Self {
+    pub fn from_devices_map(
+        cnt: u32,
+        devices: BTreeMap<String, Box<dyn DeviceInfoProvider>>,
+    ) -> Self {
         let name = String::from("room_#").add(cnt.to_string().trim());
         Self { name, devices }
     }
@@ -28,7 +31,7 @@ impl Space {
             .collect::<Vec<String>>()
     }
 
-    pub fn get_devices(&self) -> &BTreeMap<String, Box<dyn DeviceInfoProvider>> {
+    pub fn _get_devices(&self) -> &BTreeMap<String, Box<dyn DeviceInfoProvider>> {
         &self.devices
     }
 }

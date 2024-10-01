@@ -1,8 +1,8 @@
 use crate::smart_house_mod::space::Space;
 
+use crate::devices::DeviceInfoProvider;
 use std::collections::BTreeMap;
 use std::ops::Add;
-use crate::devices::DeviceInfoProvider;
 
 pub struct SmartHouse {
     name: String,
@@ -18,12 +18,10 @@ impl SmartHouse {
             space_map.insert(space.name, Space::from_devices_map(cnt, space.devices));
             cnt += 1;
         }
-        // let space_map: HashMap<String, Space> = spaces_vec.into_iter().map(|Space { name, devices }| (&name, Space::)).collect();
         Self {
             name,
             spaces: space_map,
         }
-        // todo!("реализовать инициализацию дома")
     }
 
     pub fn get_rooms(&self) -> Vec<&String> {
@@ -37,20 +35,10 @@ impl SmartHouse {
             .get_device_names()
     }
 
-    pub fn create_report(
-        &self,
-        info_provider: Box<dyn DeviceInfoProvider>
-    ) -> String {
-        // todo!("перебор комнат и устройств в них для составления отчёта");
+    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> String {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
-        // for room in self.spaces.iter().clone() {
-        //     report = report.add("Room:\t").add(room.1.name.trim()).add("\n");
-        //     for device in room.1.get_devices() {
-        //         report = report.add(device.1.get_state().trim()).add("\n");
-        //     }
-        // }
         report = report.add(info_provider.get_name().trim()).add("\n");
         report = report.add(info_provider.get_state().trim()).add("\n");
         report

@@ -36,7 +36,6 @@ impl DeviceInfo {
     }
 }
 
-// Пользовательские устройства:
 pub struct SmartSocket {
     pub info: DeviceInfo,
     pub is_switch_on: bool,
@@ -81,11 +80,41 @@ impl DeviceInfoProvider for SmartThermometer {
     }
 }
 
-// Пользовательские поставщики информации об устройствах.
-// Могут как хранить устройства, так и заимствывать.
-pub struct OwningDeviceInfoProvider<T: DeviceInfoProvider> {
-    pub device: Box<T>,
+pub struct OwningDeviceInfoProvider {
+    pub device: SmartSocket,
 }
-pub struct BorrowingDeviceInfoProvider<'a> {
-    pub device: &'a Box<dyn DeviceInfoProvider>,
+pub struct BorrowingDeviceInfoProvider<'a, 'b> {
+    pub socket: &'a SmartSocket,
+    pub therm: &'b SmartThermometer,
+}
+
+impl DeviceInfoProvider for OwningDeviceInfoProvider {
+    fn get_name(&self) -> String {
+        String::from(&self.device.info.name)
+    }
+
+    fn get_state(&self) -> String {
+        self.device
+            .info
+            .get_data()
+            .add("\tIs on:\t")
+            .add(self.device.is_switch_on.to_string().trim())
+            .add("\tCurrent power:\t")
+            .add(self.device.current_power.to_string().trim())
+            .add("\n")
+    }
+}
+
+impl DeviceInfoProvider for BorrowingDeviceInfoProvider<'_, '_> {
+    fn get_name(&self) -> String {
+        String::from(&self.socket.get_name())
+            .add("\n")
+            .add(&self.therm.get_name())
+    }
+    fn get_state(&self) -> String {
+        self.socket
+            .get_state()
+            .add("\n")
+            .add(self.therm.get_state().trim())
+    }
 }

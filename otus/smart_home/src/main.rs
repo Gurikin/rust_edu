@@ -1,12 +1,11 @@
-use crate::devices::{DeviceInfoProvider, DeviceInfo, DeviceType, SmartSocket, SmartThermometer, OwningDeviceInfoProvider, BorrowingDeviceInfoProvider};
+use crate::devices::{
+    BorrowingDeviceInfoProvider, DeviceInfo, DeviceInfoProvider, DeviceType,
+    OwningDeviceInfoProvider, SmartSocket, SmartThermometer,
+};
 use crate::smart_house_mod::{SmartHouse, Space};
 
 mod devices;
 mod smart_house_mod;
-
-// use std::{collections::HashMap, error::Error};
-
-// use crate::devices::{Device, DeviceType};
 
 fn main() {
     let smart_socket1: Box<dyn DeviceInfoProvider> = Box::new(SmartSocket {
@@ -60,14 +59,46 @@ fn main() {
             .for_each(|d| print!("{},\t", d));
         println!();
     }
+
+    let smart_socket3 = SmartSocket {
+        info: DeviceInfo {
+            id: 0,
+            name: "Smart Socket 2".to_string(),
+            device_type: DeviceType::PowerSocket,
+            description: "Smart Socket in the living room".to_string(),
+        },
+        is_switch_on: true,
+        current_power: 220,
+    };
     let info_provider_1 = OwningDeviceInfoProvider {
-        device: smart_socket1,
+        device: smart_socket3,
     };
     let report = smart_house.create_report(info_provider_1);
     println!("{}", report);
 
+    let smart_socket4 = SmartSocket {
+        info: DeviceInfo {
+            id: 0,
+            name: "Smart Socket 2".to_string(),
+            device_type: DeviceType::PowerSocket,
+            description: "Smart Socket in the living room".to_string(),
+        },
+        is_switch_on: true,
+        current_power: 380,
+    };
+    let therm2 = SmartThermometer {
+        info: DeviceInfo {
+            id: 0,
+            name: "Street Thermometer".to_string(),
+            device_type: DeviceType::Thermometer,
+            description: "Thermometer in the living room".to_string(),
+        },
+        temperature: 40,
+    };
+
     let info_provider_2 = BorrowingDeviceInfoProvider {
-        device: &therm,
+        socket: &smart_socket4,
+        therm: &therm2,
     };
     let report2 = smart_house.create_report(info_provider_2);
     println!("{}", report2);
