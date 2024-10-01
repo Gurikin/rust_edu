@@ -63,7 +63,7 @@ fn main() {
     let smart_socket3 = SmartSocket {
         info: DeviceInfo {
             id: 0,
-            name: "Smart Socket 2".to_string(),
+            name: "Smart Socket 3".to_string(),
             device_type: DeviceType::PowerSocket,
             description: "Smart Socket in the living room".to_string(),
         },
@@ -79,7 +79,7 @@ fn main() {
     let smart_socket4 = SmartSocket {
         info: DeviceInfo {
             id: 0,
-            name: "Smart Socket 2".to_string(),
+            name: "Smart Socket 4".to_string(),
             device_type: DeviceType::PowerSocket,
             description: "Smart Socket in the living room".to_string(),
         },
@@ -89,7 +89,7 @@ fn main() {
     let therm2 = SmartThermometer {
         info: DeviceInfo {
             id: 0,
-            name: "Street Thermometer".to_string(),
+            name: "Street Thermometer 2".to_string(),
             device_type: DeviceType::Thermometer,
             description: "Thermometer in the living room".to_string(),
         },
@@ -103,33 +103,3 @@ fn main() {
     let report2 = smart_house.create_report(info_provider_2);
     println!("{}", report2);
 }
-
-// fn main() {
-//     // Инициализация устройств
-//     let socket1 = SmartSocket {};
-//     let socket2 = SmartSocket {};
-//     let thermo = SmartThermometer {};
-//
-//     // Инициализация дома
-//     let house = SmartHouse::new();
-//
-//
-//     // Строим отчёт с использованием `OwningDeviceInfoProvider`.
-//     let info_provider_1 = OwningDeviceInfoProvider {
-//         socket: socket1,
-//     };
-//     // todo: после добавления обобщённого аргумента в метод, расскоментировать передачу параметра
-//     let report1 = house.create_report(/* &info_provider_1 */);
-//
-//     // Строим отчёт с использованием `BorrowingDeviceInfoProvider`.
-//     let info_provider_2 = BorrowingDeviceInfoProvider {
-//         socket: &socket2,
-//         thermo: &thermo,
-//     };
-//     // todo: после добавления обобщённого аргумента в метод, расскоментировать передачу параметра
-//     let report2 = house.create_report(/* &info_provider_2 */);
-//
-//     // Выводим отчёты на экран:
-//     println!("Report #1: {report1}");
-//     println!("Report #2: {report2}");
-// }
