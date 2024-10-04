@@ -4,8 +4,8 @@ use crate::devices::{
 };
 use crate::smart_house_mod::{SmartHouse, Space};
 
-mod devices;
-mod smart_house_mod;
+pub mod devices;
+pub mod smart_house_mod;
 
 fn main() {
     let smart_socket1: Box<dyn DeviceInfoProvider> = Box::new(SmartSocket {

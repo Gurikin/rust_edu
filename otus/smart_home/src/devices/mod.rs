@@ -1,2 +1,2 @@
 pub use self::device::*;
-mod device;
+pub mod device;

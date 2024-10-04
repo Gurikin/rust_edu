@@ -119,3 +119,53 @@ impl DeviceInfoProvider for BorrowingDeviceInfoProvider<'_, '_> {
             .add(self.therm.get_state().trim())
     }
 }
+
+#[test]
+fn test_owning_device_info_provider() {
+    let smart_socket = SmartSocket {
+        info: DeviceInfo {
+            id: 0,
+            name: "Test Smart Socket".to_string(),
+            device_type: DeviceType::PowerSocket,
+            description: "Smart Socket in the living room".to_string(),
+        },
+        is_switch_on: true,
+        current_power: 220,
+    };
+    let info_provider = OwningDeviceInfoProvider {
+        device: smart_socket,
+    };
+    assert_eq!("Test Smart Socket", info_provider.get_name());
+}
+
+#[test]
+fn test_borrowing_device_info_provider() {
+    let smart_socket = SmartSocket {
+        info: DeviceInfo {
+            id: 0,
+            name: "Test Smart Socket".to_string(),
+            device_type: DeviceType::PowerSocket,
+            description: "Smart Socket in the living room".to_string(),
+        },
+        is_switch_on: true,
+        current_power: 380,
+    };
+    let test_therm = SmartThermometer {
+        info: DeviceInfo {
+            id: 0,
+            name: "Test Thermometer".to_string(),
+            device_type: DeviceType::Thermometer,
+            description: "Thermometer in the living room".to_string(),
+        },
+        temperature: 40,
+    };
+
+    let info_provider = BorrowingDeviceInfoProvider {
+        socket: &smart_socket,
+        therm: &test_therm,
+    };
+    assert_eq!(
+        "Test Smart Socket\nTest Thermometer",
+        info_provider.get_name()
+    );
+}
