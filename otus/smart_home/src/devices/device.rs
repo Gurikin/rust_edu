@@ -24,7 +24,8 @@ impl fmt::Display for DeviceType {
 
 impl DeviceInfo {
     pub fn get_data(&self) -> String {
-        String::from("Device data:\n")
+        String::from(self.name.trim())
+            .add(":\n")
             .add("\tId:\t")
             .add(self.id.to_string().trim())
             .add("\tName:\t")

@@ -39,7 +39,6 @@ impl SmartHouse {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
-        report = report.add(info_provider.get_name().trim()).add("\n");
         report = report.add(info_provider.get_state().trim()).add("\n");
         report
     }
