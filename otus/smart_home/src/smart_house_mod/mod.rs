@@ -1,5 +1,5 @@
 pub use self::smart_house::SmartHouse;
-pub use self::space::Space;
+pub use self::apartment::Apartment;
 
 pub mod smart_house;
-pub mod space;
+pub mod apartment;

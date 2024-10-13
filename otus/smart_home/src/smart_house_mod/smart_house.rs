@@ -1,41 +1,39 @@
-use crate::smart_house_mod::space::Space;
+use crate::smart_house_mod::apartment::Apartment;
 
-use crate::devices::DeviceInfoProvider;
-use std::collections::BTreeMap;
-use std::ops::Add;
+use crate::devices::DeviceStatePrinter;
+use std::collections::{BTreeMap, BTreeSet};
+use std::ops::{Add};
 
-pub struct SmartHouse {
+pub struct SmartHouse<'a> {
     name: String,
-    spaces: BTreeMap<String, Space>,
+    apartments: BTreeMap<String, &'a Apartment>,
 }
 
-impl SmartHouse {
-    pub fn new(uniq_name: &str, spaces_vec: Vec<Space>) -> Self {
-        let name = String::from("Smart_Home_").add(uniq_name);
-        let mut space_map: BTreeMap<String, Space> = BTreeMap::new();
-        let mut cnt = 1;
-        for space in spaces_vec {
-            space_map.insert(space.name, Space::from_devices_map(cnt, space.devices));
-            cnt += 1;
+impl<'a> SmartHouse<'a> {
+    pub fn new(uniq_name: &str, spaces_vec: &'a Vec<Apartment>) -> Self {
+        let local_name = String::from("Smart_Home_").add(uniq_name);
+        let mut apartments_map = BTreeMap::new();
+        for apartment in spaces_vec {
+            apartments_map.insert(apartment.get_name(), apartment);
         }
         Self {
-            name,
-            spaces: space_map,
+            name: local_name,
+            apartments: apartments_map,
         }
     }
 
-    pub fn get_rooms(&self) -> Vec<&String> {
-        self.spaces.keys().clone().collect::<Vec<&String>>()
+    pub fn get_apartments(&self) -> BTreeMap<String, &Apartment> {
+        self.apartments.iter().map(|(n, a)| (n.clone(), *a)).collect()
     }
 
-    pub fn devices(&self, room: &str) -> Vec<String> {
-        self.spaces
-            .get(room)
-            .expect("Room not found")
-            .get_device_names()
+    pub fn devices(&self, apartment: String) -> BTreeSet<String> {
+        self.apartments
+            .get(&apartment)
+            .expect("Apartment not found")
+            .get_devices()
     }
 
-    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> String {
+    pub fn create_report<T: DeviceStatePrinter>(&self, info_provider: T) -> String {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
