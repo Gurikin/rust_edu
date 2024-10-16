@@ -1,5 +1,5 @@
-use std::collections::{BTreeSet};
-use std::ops::{Add};
+use std::collections::BTreeSet;
+use std::ops::Add;
 
 pub struct Apartment {
     name: String,
@@ -16,7 +16,7 @@ impl Apartment {
     pub fn from_set(cnt: u32, devices_set: &BTreeSet<String>) -> Self {
         let name = String::from("room_#").add(cnt.to_string().trim());
         let devices = devices_set.clone().into_iter().collect();
-        Self {name, devices}
+        Self { name, devices }
     }
 
     pub fn get_name(&self) -> String {
