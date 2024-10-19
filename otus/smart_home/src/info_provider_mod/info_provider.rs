@@ -97,7 +97,7 @@ fn test_borrowing_device_info_provider() {
     };
 
     let devices_in_kitchen = vec![socket_name.clone(), term_name.clone()];
-    let kitchen = Apartment::from_vec(1, devices_in_kitchen);
+    let kitchen = crate::smart_house_mod::Apartment::from_vec(1, devices_in_kitchen);
 
     let mut sockets_map = BTreeMap::new();
     let mut socket_devices = BTreeMap::new();

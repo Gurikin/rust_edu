@@ -22,6 +22,10 @@ impl<'a> SmartHouse<'a> {
         }
     }
 
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
     pub fn get_apartments(&self) -> BTreeMap<String, &Apartment> {
         self.apartments
             .iter()
@@ -36,19 +40,23 @@ impl<'a> SmartHouse<'a> {
             .get_devices()
     }
 
-    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> String {
+    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> Result<String, String> {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
         for room in self.get_apartments().values() {
             for device in self.devices(room.get_name()) {
                 match info_provider.get_device_info(room.get_name(), device.clone()) {
-                    Some(dr) => report = report.add(&dr).add("\n"),
-                    None => println!("Device {} was not found in the provided provider", device),
+                    Some(dr) => {
+                        report = report.add(&dr).add("\n");
+                    }
+                    None => {
+                        return Err(format!("In a devices in smart_house {}, was not found devices from info_provider.", self.get_name()));
+                    }
                 }
             }
         }
 
-        report
+        Ok(report)
     }
 }
