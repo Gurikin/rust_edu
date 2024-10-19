@@ -74,5 +74,12 @@ fn test_error_in_report() {
     let smart_house = SmartHouse::new("Cottage", &apartments);
     let report = smart_house.create_report(info_provider);
     assert!(report.is_err());
-    assert!(report.err().unwrap().contains(format!("In a devices in smart_house {}, was not found devices from info_provider.", smart_house.get_name()).to_string().trim()));
+    assert!(report.err().unwrap().contains(
+        format!(
+            "In a devices in smart_house {}, was not found devices from info_provider.",
+            smart_house.get_name()
+        )
+        .to_string()
+        .trim()
+    ));
 }
