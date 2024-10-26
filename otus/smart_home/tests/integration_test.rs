@@ -18,8 +18,9 @@ fn test_report_from_owning_device_info_provider() {
         is_switch_on: true,
         current_power: 220,
     };
-    let devices_in_living_room = BTreeSet::from([socket_name.clone()]);
-    let living_room = Apartment::from_set(1, &devices_in_living_room);
+    let devices_in_living_room = BTreeSet::new();
+    let mut living_room = Apartment::from_set(1, &devices_in_living_room);
+    assert!(living_room.add(socket_name.clone()).is_ok());
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
     room_devices.insert(socket_name.clone(), smart_socket);

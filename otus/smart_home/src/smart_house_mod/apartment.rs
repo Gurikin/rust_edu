@@ -28,4 +28,41 @@ impl Apartment {
         let local_devices = Box::new(&self.devices);
         local_devices.iter().cloned().collect()
     }
+
+    pub fn add(&mut self, device_name: String) -> Result<bool, bool> {
+        match self.devices.insert(device_name) {
+            true => Ok(true),
+            false => Err(false),
+        }
+    }
+
+    pub fn remove(&mut self, device_name: String) -> Result<bool, bool> {
+        match self.devices.remove(&device_name) {
+            true => Ok(true),
+            false => Err(false),
+        }
+    }
+}
+
+#[test]
+fn test_owning_device_info_provider() {
+    let devices_in_living_room = BTreeSet::from([]);
+    let mut living_room = Apartment::from_set(1, &devices_in_living_room);
+    assert_eq!(
+        false,
+        living_room.get_devices().contains("computer_socket_name")
+    );
+    assert!(living_room
+        .add(String::from("computer_socket_name"))
+        .is_ok());
+    assert!(living_room
+        .add(String::from("computer_socket_name"))
+        .is_err());
+    assert_eq!(
+        true,
+        living_room
+            .add(String::from("monitor_socket_name"))
+            .ok()
+            .unwrap()
+    );
 }
