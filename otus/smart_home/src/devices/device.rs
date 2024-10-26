@@ -8,7 +8,7 @@ pub struct DeviceInfo {
     pub description: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DeviceType {
     PowerSocket,
     Thermometer,
