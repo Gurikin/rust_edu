@@ -72,7 +72,7 @@ impl DeviceInfoStorage<SmartSocket> for OwningDeviceInfoProvider {
     }
 
     fn remove(&mut self, apart_name: String, device: SmartSocket) -> Result<bool, String> {
-        match DeviceType::PowerSocket == device.info.device_type {
+        match DeviceType::PowerSocket.eq(&device.info.device_type) {
             true => {
                 if self.sockets.contains_key(&apart_name) {
                     self.sockets
@@ -97,7 +97,7 @@ impl DeviceInfoStorage<SmartSocket> for OwningDeviceInfoProvider {
 
 impl<'a> DeviceInfoStorageRef<'a, SmartSocket> for BorrowingDeviceInfoProvider<'a> {
     fn add(&mut self, apart_name: String, device: &'a SmartSocket) -> Result<bool, String> {
-        match DeviceType::PowerSocket == device.info.device_type {
+        match DeviceType::PowerSocket.eq(&device.info.device_type) {
             true => {
                 if self.sockets.contains_key(&apart_name) {
                     self.sockets
@@ -119,7 +119,7 @@ impl<'a> DeviceInfoStorageRef<'a, SmartSocket> for BorrowingDeviceInfoProvider<'
     }
 
     fn remove(&mut self, apart_name: String, device: &'a SmartSocket) -> Result<bool, String> {
-        match DeviceType::PowerSocket == device.info.device_type {
+        match DeviceType::PowerSocket.eq(&device.info.device_type) {
             true => {
                 if self.sockets.contains_key(&apart_name) {
                     self.sockets
@@ -144,7 +144,7 @@ impl<'a> DeviceInfoStorageRef<'a, SmartSocket> for BorrowingDeviceInfoProvider<'
 
 impl<'a> DeviceInfoStorageRef<'a, SmartThermometer> for BorrowingDeviceInfoProvider<'a> {
     fn add(&mut self, apart_name: String, device: &'a SmartThermometer) -> Result<bool, String> {
-        match DeviceType::Thermometer == device.info.device_type {
+        match DeviceType::Thermometer.eq(&device.info.device_type) {
             true => {
                 if self.therms.contains_key(&apart_name) {
                     self.therms
@@ -166,7 +166,7 @@ impl<'a> DeviceInfoStorageRef<'a, SmartThermometer> for BorrowingDeviceInfoProvi
     }
 
     fn remove(&mut self, apart_name: String, device: &'a SmartThermometer) -> Result<bool, String> {
-        match DeviceType::Thermometer == device.info.device_type {
+        match DeviceType::Thermometer.eq(&device.info.device_type) {
             true => {
                 if self.therms.contains_key(&apart_name) {
                     self.therms
