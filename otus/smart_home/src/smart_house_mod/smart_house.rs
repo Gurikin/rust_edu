@@ -1,6 +1,8 @@
-use crate::info_provider_mod::info_provider::DeviceInfoProvider;
+use crate::devices::device::*;
+use crate::info_provider_mod::info_provider::*;
 use crate::smart_house_mod::apartment::Apartment;
 
+use std::borrow::Borrow;
 use std::collections::BTreeMap;
 use std::ops::Add;
 
@@ -53,7 +55,13 @@ impl<'a> SmartHouse<'a> {
         }
     }
 
-    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> Result<String, String> {
+    pub fn create_report<T>(
+        &self,
+        info_provider: &'a dyn DeviceInfoProvider<T>,
+    ) -> Result<String, String>
+    where
+        T: Borrow<dyn Device> + Device + 'a,
+    {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");

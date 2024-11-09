@@ -26,7 +26,7 @@ fn test_report_from_owning_device_info_provider() {
     room_devices.insert(socket_name.clone(), smart_socket);
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
     assert!(info_provider
         .get_device_info(living_room.get_name(), socket_name.clone())
@@ -34,7 +34,7 @@ fn test_report_from_owning_device_info_provider() {
 
     let apartments = vec![living_room];
     let smart_house = SmartHouse::new("Cottage", &apartments);
-    let report = smart_house.create_report(info_provider);
+    let report = smart_house.create_report(&info_provider);
     assert!(report.is_ok());
     assert!(&report.unwrap().contains("Smart_Home_Cottage".trim()));
 }
@@ -63,7 +63,7 @@ fn test_error_in_report() {
     room_devices.insert(unknown_socket_name.clone(), unknown_smart_socket);
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
 
     //Check that info provider contains smart socket
@@ -73,7 +73,7 @@ fn test_error_in_report() {
 
     let apartments = vec![living_room];
     let smart_house = SmartHouse::new("Cottage", &apartments);
-    let report = smart_house.create_report(info_provider);
+    let report = smart_house.create_report(&info_provider);
     assert!(report.is_err());
     assert!(report.err().unwrap().contains(
         format!(

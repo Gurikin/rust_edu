@@ -1,6 +1,8 @@
+use std::borrow::Borrow;
 use std::fmt;
 use std::ops::Add;
 
+#[derive(Debug, PartialEq, Clone)]
 pub struct DeviceInfo {
     pub id: u8,
     pub name: String,
@@ -8,7 +10,7 @@ pub struct DeviceInfo {
     pub description: String,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DeviceType {
     PowerSocket,
     Thermometer,
@@ -19,6 +21,12 @@ impl fmt::Display for DeviceType {
         write!(f, "{:?}", self)
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
+    }
+}
+
+impl fmt::Display for DeviceInfo {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
@@ -47,14 +55,19 @@ pub struct SmartThermometer {
     pub temperature: u32,
 }
 
-pub trait DeviceStatePrinter {
+pub trait Device {
     fn get_name(&self) -> String;
+    fn get_info(&self) -> String;
     fn get_state(&self) -> String;
 }
 
-impl DeviceStatePrinter for SmartSocket {
+impl Device for SmartSocket {
     fn get_name(&self) -> String {
         String::from(&self.info.name)
+    }
+
+    fn get_info(&self) -> String {
+        self.info.get_main_info().clone()
     }
 
     fn get_state(&self) -> String {
@@ -68,10 +81,77 @@ impl DeviceStatePrinter for SmartSocket {
     }
 }
 
-impl DeviceStatePrinter for SmartThermometer {
+impl Device for SmartThermometer {
     fn get_name(&self) -> String {
         String::from(&self.info.name)
     }
+
+    fn get_info(&self) -> String {
+        self.info.get_main_info().clone()
+    }
+
+    fn get_state(&self) -> String {
+        self.info
+            .get_main_info()
+            .add("\tTemperature:\t")
+            .add(self.temperature.to_string().trim())
+            .add("\n")
+    }
+}
+
+impl<'a> Borrow<dyn Device + 'a> for SmartSocket {
+    fn borrow(&self) -> &(dyn Device + 'a) {
+        self
+    }
+}
+
+impl<'a> Borrow<dyn Device + 'a> for SmartThermometer {
+    fn borrow(&self) -> &(dyn Device + 'a) {
+        self
+    }
+}
+
+impl<'a> Borrow<dyn Device + 'a> for &'a SmartSocket {
+    fn borrow(&self) -> &(dyn Device + 'a) {
+        self
+    }
+}
+
+impl<'a> Borrow<dyn Device + 'a> for &'a SmartThermometer {
+    fn borrow(&self) -> &(dyn Device + 'a) {
+        self
+    }
+}
+
+impl<'a> Device for &'a SmartSocket {
+    fn get_name(&self) -> String {
+        self.info.name.clone()
+    }
+
+    fn get_info(&self) -> String {
+        self.info.get_main_info().clone()
+    }
+
+    fn get_state(&self) -> String {
+        self.info
+            .get_main_info()
+            .add("\tIs on:\t")
+            .add(self.is_switch_on.to_string().trim())
+            .add("\tCurrent power:\t")
+            .add(self.current_power.to_string().trim())
+            .add("\n")
+    }
+}
+
+impl<'a> Device for &'a SmartThermometer {
+    fn get_name(&self) -> String {
+        String::from(&self.info.name)
+    }
+
+    fn get_info(&self) -> String {
+        self.info.get_main_info().clone()
+    }
+
     fn get_state(&self) -> String {
         self.info
             .get_main_info()
