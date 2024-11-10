@@ -6,13 +6,13 @@ use std::borrow::Borrow;
 use std::collections::BTreeMap;
 use std::ops::Add;
 
-pub struct SmartHouse<'a> {
+pub struct SmartHouse {
     name: String,
-    apartments: BTreeMap<String, &'a Apartment>,
+    apartments: BTreeMap<String, Apartment>,
 }
 
-impl<'a> SmartHouse<'a> {
-    pub fn new(uniq_name: &str, spaces_vec: &'a Vec<Apartment>) -> Self {
+impl<'a> SmartHouse {
+    pub fn new(uniq_name: &str, spaces_vec: Vec<Apartment>) -> Self {
         let local_name = String::from("Smart_Home_").add(uniq_name);
         let mut apartments_map = BTreeMap::new();
         for apartment in spaces_vec {
@@ -28,14 +28,11 @@ impl<'a> SmartHouse<'a> {
         &self.name
     }
 
-    pub fn get_apartments(&self) -> BTreeMap<String, &Apartment> {
-        self.apartments
-            .iter()
-            .map(|(n, a)| (n.clone(), *a))
-            .collect()
+    pub fn get_apartments(&self) -> &BTreeMap<String, Apartment> {
+        &self.apartments
     }
 
-    pub fn add(&mut self, apartment: &'a Apartment) -> Result<bool, bool> {
+    pub fn add(&mut self, apartment: Apartment) -> Result<bool, bool> {
         match self.apartments.contains_key(&apartment.get_name()) {
             true => Err(false),
             false => {
@@ -86,6 +83,7 @@ impl<'a> SmartHouse<'a> {
 fn test_owning_device_info_provider() {
     let devices_in_living_room = std::collections::BTreeSet::from([]);
     let mut living_room = Apartment::from_set(1, &devices_in_living_room);
+    let room_name = living_room.get_name().clone();
     assert!(living_room
         .add(String::from("smart socket in living room"))
         .is_ok());
@@ -94,8 +92,6 @@ fn test_owning_device_info_provider() {
         .contains("smart socket in living room"));
     let binding = vec![];
     let mut smart_house = SmartHouse::new("Test", &binding);
-    assert!(smart_house.add(&living_room).is_ok());
-    assert!(smart_house
-        .get_apartments()
-        .contains_key(&living_room.get_name()));
+    assert!(smart_house.add(Box::new(living_room)).is_ok());
+    assert!(smart_house.get_apartments().contains_key(&room_name));
 }

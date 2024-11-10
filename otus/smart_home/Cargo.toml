@@ -1,8 +1,10 @@
-[package]
-name = "smart_home"
-version = "0.1.0"
-edition = "2021"
+[workspace]
 
-[dependencies]
-console_engine = "2.6.1"
-rand = "0.9.0-alpha.2"
+resolver = "2"
+
+members = [
+    "smart_home",
+    "stp",
+    "stp_server",
+    "stp_client"
+]

@@ -7,6 +7,11 @@ pub struct Apartment {
 }
 
 impl Apartment {
+    pub fn new(name: String) -> Self {
+        let devices = BTreeSet::new();
+        Self { name, devices }
+    }
+
     pub fn from_vec(cnt: u32, devices_vec: Vec<String>) -> Self {
         let name = String::from("room_#").add(cnt.to_string().trim());
         let devices = devices_vec.into_iter().collect();
