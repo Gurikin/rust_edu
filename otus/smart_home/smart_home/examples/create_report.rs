@@ -27,7 +27,7 @@ fn main() {
     };
 
     let apartments = vec![living_room];
-    let smart_house = SmartHouse::new("Cottage", &apartments);
+    let smart_house = SmartHouse::new("Cottage", apartments);
     match smart_house.create_report(&info_provider) {
         Ok(r) => println!("{}", r),
         Err(e) => eprint!("{}", e),

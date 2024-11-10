@@ -91,7 +91,7 @@ fn test_owning_device_info_provider() {
         .get_devices()
         .contains("smart socket in living room"));
     let binding = vec![];
-    let mut smart_house = SmartHouse::new("Test", &binding);
-    assert!(smart_house.add(Box::new(living_room)).is_ok());
+    let mut smart_house = SmartHouse::new("Test", binding);
+    assert!(smart_house.add(living_room).is_ok());
     assert!(smart_house.get_apartments().contains_key(&room_name));
 }

@@ -33,7 +33,7 @@ fn test_report_from_owning_device_info_provider() {
         .is_some());
 
     let apartments = vec![living_room];
-    let smart_house = SmartHouse::new("Cottage", &apartments);
+    let smart_house = SmartHouse::new("Cottage", apartments);
     let report = smart_house.create_report(&info_provider);
     assert!(report.is_ok());
     assert!(&report.unwrap().contains("Smart_Home_Cottage".trim()));
@@ -72,7 +72,7 @@ fn test_error_in_report() {
         .is_some());
 
     let apartments = vec![living_room];
-    let smart_house = SmartHouse::new("Cottage", &apartments);
+    let smart_house = SmartHouse::new("Cottage", apartments);
     let report = smart_house.create_report(&info_provider);
     assert!(report.is_err());
     assert!(report.err().unwrap().contains(
