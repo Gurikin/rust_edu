@@ -1,5 +1,5 @@
 [package]
-name = "chat_client"
+name = "smart_house_tcp_client"
 version = "0.1.0"
 edition = "2021"
 

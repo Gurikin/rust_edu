@@ -41,14 +41,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let room = Apartment::new(room_name.to_string());
                 match smart_house.add(room) {
                     Ok(_) => {
-                        return format!(
+                        let response = format!(
                             "[{}] Apartment {} added to {} successfully",
+                            offset::Local::now(),
+                            room_name,
+                            smart_house.get_name().clone()
+                        );
+                        println!("{}", response);
+                        return response;
+                    }
+                    Err(_) => {
+                        println!(
+                            "[{}] Could not add room {} to the smart house {}",
                             offset::Local::now(),
                             room_name,
                             smart_house.get_name().clone()
                         )
                     }
-                    Err(_) => todo!(),
                 }
             }
 

@@ -3,11 +3,11 @@ use stp::client::StpClient;
 use stp::error::{ConnectError, RequestError};
 
 /// Клиент чата.
-pub struct ChatClient {
+pub struct SmartHouseTcpClient {
     stp: StpClient,
 }
 
-impl ChatClient {
+impl SmartHouseTcpClient {
     /// Подключаемся к серверу.
     pub fn new<Addr: ToSocketAddrs>(addr: Addr) -> Result<Self, ConnectError> {
         let stp = StpClient::connect(addr)?;
@@ -21,7 +21,7 @@ impl ChatClient {
 
     /// Добавляем сообщение.
     pub fn append(&mut self, msg: &str) -> Result<String, RequestError> {
-        let request = format!("append:{}", msg);
+        let request = format!("add_room:{}", msg);
         self.stp.send_request(request)
     }
 }
