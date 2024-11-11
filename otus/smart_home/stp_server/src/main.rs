@@ -122,7 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                     Err(e) => {
                         println!(
-                            "[{}] Could not switch state for device {}. Cause: {}",
+                            "[{}] Could not get state for device {}. Cause: {}",
                             offset::Local::now(),
                             device_name,
                             e
