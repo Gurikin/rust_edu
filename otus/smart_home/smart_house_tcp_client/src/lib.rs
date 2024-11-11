@@ -20,6 +20,11 @@ impl SmartHouseTcpClient {
         self.stp.send_request(request)
     }
 
+    pub fn get_state(&mut self, msg: &str) -> Result<String, RequestError> {
+        let request = format!("get_state:{}", msg);
+        self.stp.send_request(request)
+    }
+
     /// Добавляем комнату.
     pub fn add_room(&mut self, msg: &str) -> Result<String, RequestError> {
         let request = format!("add_room:{}", msg);

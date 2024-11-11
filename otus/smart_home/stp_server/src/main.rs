@@ -69,7 +69,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
 
-            // Если запрос append, добавляем новое сообщение.
+            // Если запрос switch_state, то меняем состояние устройства в умном доме.
             if let Some(msg) = req.strip_prefix("switch_state:") {
                 let mut args = msg.split("|||");
                 let apart_name = String::from(args.next().unwrap_or("Unknown_room"));
@@ -81,7 +81,38 @@ fn main() -> Result<(), Box<dyn Error>> {
                 ) {
                     Ok(state) => {
                         let response = format!(
-                            "[{}] State for device {} is switched.\nNew State: {}",
+                            "[{}] State for device \"{}\" is switched.\nNew State: {}",
+                            offset::Local::now(),
+                            device_name,
+                            state
+                        );
+                        println!("{}", response);
+                        return response;
+                    }
+                    Err(e) => {
+                        println!(
+                            "[{}] Could not switch state for device {}. Cause: {}",
+                            offset::Local::now(),
+                            device_name,
+                            e
+                        )
+                    }
+                }
+            }
+            
+            // Если запрос get_state, то возвращаем состояние устройства
+            if let Some(msg) = req.strip_prefix("get_state:") {
+                let mut args = msg.split("|||");
+                let apart_name = String::from(args.next().unwrap_or("Unknown_room"));
+                let device_name = String::from(args.next().unwrap_or("Unknown_device"));
+                match smart_house_data.0.get_state(
+                    apart_name,
+                    device_name.clone(),
+                    &mut smart_house_data.1,
+                ) {
+                    Ok(state) => {
+                        let response = format!(
+                            "[{}] State for device \"{}\" is switched.\nNew State: {}",
                             offset::Local::now(),
                             device_name,
                             state

@@ -24,6 +24,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Ok(());
     }
 
+    if action == "get_state" {
+        let Some(msg) = cli_args.next() else {
+            return Err(String::from("No message provided").into());
+        };
+        // Изменяем состояние устройства.
+        client.get_state(&msg)?;
+        return Ok(());
+    }
+
     if action == "add_room" {
         // Отправляем новое сообщение.
         let Some(msg) = cli_args.next() else {
