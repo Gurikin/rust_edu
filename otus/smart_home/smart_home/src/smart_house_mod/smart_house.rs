@@ -77,6 +77,21 @@ impl<'a> SmartHouse {
 
         Ok(report)
     }
+
+    pub fn switch_state<T>(
+        &self,
+        apart_name: String,
+        device_name: String,
+        device_provider: &'a mut dyn DeviceInfoStorageB<'a, T, dyn Device>,
+    ) -> Result<String, String>
+    where
+        T: Borrow<dyn Device> + Device + 'a,
+    {
+        match device_provider.get(apart_name, device_name) {
+            Ok(device) => Ok(device.switch_state()),
+            Err(_) => Err("Device not found".to_string()),
+        }
+    }
 }
 
 #[test]

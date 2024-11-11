@@ -59,6 +59,7 @@ pub trait Device {
     fn get_name(&self) -> String;
     fn get_info(&self) -> String;
     fn get_state(&self) -> String;
+    fn switch_state(&mut self) -> String;
 }
 
 impl Device for SmartSocket {
@@ -79,6 +80,12 @@ impl Device for SmartSocket {
             .add(self.current_power.to_string().trim())
             .add("\n")
     }
+
+    fn switch_state(&mut self) -> String {
+        self.is_switch_on = !self.is_switch_on;
+        self.current_power = if self.is_switch_on { 220 } else { 0 };
+        self.get_state()
+    }
 }
 
 impl Device for SmartThermometer {
@@ -97,6 +104,13 @@ impl Device for SmartThermometer {
             .add(self.temperature.to_string().trim())
             .add("\n")
     }
+
+    fn switch_state(&mut self) -> String {
+        format!(
+            "Unsupported operation for thermometer!\nState: {}",
+            self.get_state()
+        )
+    }
 }
 
 impl<'a> Borrow<dyn Device + 'a> for SmartSocket {
@@ -108,55 +122,5 @@ impl<'a> Borrow<dyn Device + 'a> for SmartSocket {
 impl<'a> Borrow<dyn Device + 'a> for SmartThermometer {
     fn borrow(&self) -> &(dyn Device + 'a) {
         self
-    }
-}
-
-impl<'a> Borrow<dyn Device + 'a> for &'a SmartSocket {
-    fn borrow(&self) -> &(dyn Device + 'a) {
-        self
-    }
-}
-
-impl<'a> Borrow<dyn Device + 'a> for &'a SmartThermometer {
-    fn borrow(&self) -> &(dyn Device + 'a) {
-        self
-    }
-}
-
-impl<'a> Device for &'a SmartSocket {
-    fn get_name(&self) -> String {
-        self.info.name.clone()
-    }
-
-    fn get_info(&self) -> String {
-        self.info.get_main_info().clone()
-    }
-
-    fn get_state(&self) -> String {
-        self.info
-            .get_main_info()
-            .add("\tIs on:\t")
-            .add(self.is_switch_on.to_string().trim())
-            .add("\tCurrent power:\t")
-            .add(self.current_power.to_string().trim())
-            .add("\n")
-    }
-}
-
-impl<'a> Device for &'a SmartThermometer {
-    fn get_name(&self) -> String {
-        String::from(&self.info.name)
-    }
-
-    fn get_info(&self) -> String {
-        self.info.get_main_info().clone()
-    }
-
-    fn get_state(&self) -> String {
-        self.info
-            .get_main_info()
-            .add("\tTemperature:\t")
-            .add(self.temperature.to_string().trim())
-            .add("\n")
     }
 }

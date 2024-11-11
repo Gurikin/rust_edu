@@ -14,13 +14,14 @@ impl SmartHouseTcpClient {
         Ok(Self { stp })
     }
 
-    /// Запрашиваем сообщения в чате.
-    pub fn fetch(&mut self) -> Result<String, RequestError> {
-        self.stp.send_request("fetch")
+    /// Переключаем состояние устройства.
+    pub fn switch_state(&mut self, msg: &str) -> Result<String, RequestError> {
+        let request = format!("switch_state:{}", msg);
+        self.stp.send_request(request)
     }
 
-    /// Добавляем сообщение.
-    pub fn append(&mut self, msg: &str) -> Result<String, RequestError> {
+    /// Добавляем комнату.
+    pub fn add_room(&mut self, msg: &str) -> Result<String, RequestError> {
         let request = format!("add_room:{}", msg);
         self.stp.send_request(request)
     }

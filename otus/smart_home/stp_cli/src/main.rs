@@ -15,11 +15,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Соединяемся с сервером чата.
     let mut client = smart_house_tcp_client::SmartHouseTcpClient::new(addr)?;
 
-    if action == "fetch" {
-        // Выводим историю.
-        let chat_history = client.fetch()?;
-        println!("Chat history:");
-        println!("{}", chat_history);
+    if action == "switch_state" {
+        let Some(msg) = cli_args.next() else {
+            return Err(String::from("No message provided").into());
+        };
+        // Изменяем состояние устройства.
+        client.switch_state(&msg)?;
         return Ok(());
     }
 
@@ -28,11 +29,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         let Some(msg) = cli_args.next() else {
             return Err(String::from("No message provided").into());
         };
-        client.append(&msg)?;
+        client.add_room(&msg)?;
         return Ok(());
     }
 
-    Err(String::from("Unknown action, use 'add_room' or 'fetch'").into())
+    Err(String::from("Unknown action, use 'add_room' or 'switch_state'").into())
 }
 
 fn get_server_addr() -> String {

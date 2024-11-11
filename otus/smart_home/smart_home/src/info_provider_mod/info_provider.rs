@@ -45,18 +45,19 @@ where
 
 fn get_device<'a, T>(
     apart_name: String,
-    devices: &BTreeMap<String, BTreeMap<String, T>>,
+    devices: &mut BTreeMap<String, BTreeMap<String, T>>,
     device_name: String,
-) -> Result<&T, String>
+) -> Result<&mut T, String>
 where
     T: Borrow<dyn Device + 'a>,
 {
     if devices.contains_key(&apart_name) {
-        Ok(devices
-            .get(&apart_name)
+        let device = devices
+            .get_mut(&apart_name)
             .unwrap()
-            .get(device_name.as_str())
-            .unwrap())
+            .get_mut(device_name.as_str())
+            .unwrap();
+        Ok(device)
     } else {
         Err(format!(
             "В данном провайдере отсутствует комната {}",
@@ -92,7 +93,7 @@ where
 {
     fn add(&'b mut self, apart_name: String, device: T) -> Result<bool, String>;
     fn remove(&'b mut self, apart_name: String, device_name: String) -> Result<bool, String>;
-    fn get(&'b self, apart_name: String, device_name: String) -> Result<&T, String>;
+    fn get(&mut self, apart_name: String, device_name: String) -> Result<&mut T, String>;
 }
 
 impl<T> DeviceInfoProvider<T> for OwningDeviceInfoProvider<T>
@@ -128,8 +129,8 @@ where
         }
     }
 
-    fn get(&'b self, apart_name: String, device_name: String) -> Result<&T, String> {
-        match get_device(apart_name, &self.devices, device_name.clone()) {
+    fn get(&mut self, apart_name: String, device_name: String) -> Result<&mut T, String> {
+        match get_device(apart_name, &mut self.devices, device_name.clone()) {
             Ok(device) => Ok(device),
             Err(_) => Err(format!(
                 "Неизвестное устройство {} для данного провайдера",
