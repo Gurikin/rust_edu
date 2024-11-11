@@ -99,7 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
             }
-            
+
             // Если запрос get_state, то возвращаем состояние устройства
             if let Some(msg) = req.strip_prefix("get_state:") {
                 let mut args = msg.split("|||");
