@@ -9,6 +9,7 @@ pub enum ConnectError {
 
     /// Внутренняя ошибка IO.
     Io(io::Error),
+    BadPortBound,
 }
 
 impl fmt::Display for ConnectError {
@@ -16,6 +17,7 @@ impl fmt::Display for ConnectError {
         match self {
             Self::BadHandshake => write!(f, "bad handshake"),
             Self::Io(e) => write!(f, "IO error: {}", e),
+            Self::BadPortBound => write!(f, "Bad port bound"),
         }
     }
 }
@@ -31,6 +33,7 @@ impl Error for ConnectError {
         match self {
             Self::Io(e) => Some(e),
             Self::BadHandshake => None,
+            Self::BadPortBound => None,
         }
     }
 }
