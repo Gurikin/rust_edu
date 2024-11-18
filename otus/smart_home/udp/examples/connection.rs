@@ -9,8 +9,7 @@ use udp::server::UdpConnection;
 fn main() -> Result<(), Box<dyn Error>> {
     let connection = Arc::new(Mutex::new(UdpConnection::bind_port("127.0.0.1:55331")?));
     let t = thread::spawn(move || {
-        let conn_ref = connection.clone(); //Arc::new(Mutex::new(connection.lock().unwrap().as_ref().unwrap().clone()));
-
+        let conn_ref = connection.clone();
         let result = process_connection(conn_ref).map_err(|_| "Error processing connection");
         println!("{}", result.unwrap());
     });
