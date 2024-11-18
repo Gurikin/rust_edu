@@ -4,8 +4,5 @@ resolver = "2"
 
 members = [
     "smart_home",
-    "udp",
-    "stp_server",
-    "smart_house_tcp_client",
-    "stp_cli"
+    "udp"
 ]

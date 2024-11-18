@@ -1,17 +1,17 @@
 use std::{
-    error::Error, net::UdpSocket, os::windows::io::AsHandle, sync::{Arc, Mutex}, thread
+    error::Error,
+    net::UdpSocket,
+    sync::{Arc, Mutex},
+    thread,
 };
-use stp::server::{UdpConnection, UdpServer};
+use udp::server::UdpConnection;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let server = Arc::new(Mutex::new(UdpServer::bind("127.0.0.1:55331")));
-    let server_ref = server.clone();
+    let connection = Arc::new(Mutex::new(UdpConnection::bind_port("127.0.0.1:55331")?));
     let t = thread::spawn(move || {
-        let server_lock = server_ref.lock().unwrap();
-        let conn = Arc::new(Mutex::new(server_lock.as_ref().unwrap().accept().unwrap()));
-        let conn_ref = conn.clone();
-        let result = process_connection(conn_ref)
-            .map_err(|_| "Error processing connection");
+        let conn_ref = connection.clone(); //Arc::new(Mutex::new(connection.lock().unwrap().as_ref().unwrap().clone()));
+
+        let result = process_connection(conn_ref).map_err(|_| "Error processing connection");
         println!("{}", result.unwrap());
     });
     println!("Main thread finished");
@@ -19,18 +19,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn process_connection(conn: Arc<Mutex<UdpConnection>>) -> Result<String, Box<dyn Error>> {
-    let conn_ref= conn.clone();
-    let size = UdpSocket::bind("127.0.0.1:55332").unwrap().send_to("Hello, server".as_bytes(), "127.0.0.1:55331").map_err(|_| 0usize).unwrap();
-    assert_eq!(13, size);
-    thread::spawn(move || {
-        let conn_lock = conn_ref.try_lock().unwrap();
-        let response = conn_lock.process_response();
-        assert!(response.is_ok());
-        assert_eq!(response.unwrap(), String::from("Hello, server"));
-    }).join().unwrap();
+fn process_connection(connection: Arc<Mutex<UdpConnection>>) -> Result<String, Box<dyn Error>> {
+    let client_socket = UdpSocket::bind("127.0.0.1:55332")?;
+    let message = "Hello, server";
+    let bytes_sent = client_socket.send_to(message.as_bytes(), "127.0.0.1:55331")?;
+    assert_eq!(message.len(), bytes_sent);
 
-    Ok(String::from("Connection processed successfully."))
+    let connection_clone = connection.clone();
+    thread::spawn(move || {
+        let connection_lock = connection_clone.lock().unwrap();
+        let response = connection_lock.process_response();
+        assert!(response.is_ok());
+        assert_eq!(response.unwrap(), message.to_string());
+    })
+    .join()
+    .unwrap();
+
+    Ok("Connection processed successfully.".to_string())
 }
 
 // use std::io::{self, BufRead};
