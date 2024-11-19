@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
     thread,
 };
-use udp::server::UdpConnection;
+use udp::connection::UdpConnection;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let connection = Arc::new(Mutex::new(UdpConnection::bind_port("127.0.0.1:55331")?));

@@ -1,5 +1,4 @@
 use crate::error::{ConnectError, RecvError, RequestError};
-use std::io;
 use std::net::{SocketAddr, ToSocketAddrs, UdpSocket};
 use std::time::Duration;
 
@@ -44,7 +43,10 @@ impl UdpConnection {
     }
 
     /// Address of connected client
-    pub fn peer_addr(&self) -> io::Result<SocketAddr> {
-        self.socket.peer_addr()
+    pub fn peer_addr(&self) -> SocketAddr {
+        self.socket
+            .peer_addr()
+            .map_err(|_| "127.0.0.1:808081")
+            .unwrap()
     }
 }

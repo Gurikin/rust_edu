@@ -6,8 +6,8 @@ use std::{
 };
 
 // pub mod client;
+pub mod connection;
 pub mod error;
-pub mod server;
 
 // /// Отправляет четыре байта `data.len()`, а потом сами данные.
 // fn send_string<Data: AsRef<str>, Writer: Write>(
