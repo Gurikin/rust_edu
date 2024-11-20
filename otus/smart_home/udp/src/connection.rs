@@ -13,7 +13,7 @@ impl UdpConnection {
     where
         Addrs: ToSocketAddrs,
     {
-        let socket = UdpSocket::bind(local_addrs).map_err(|_| ConnectError::BadPortBound)?;
+        let socket = UdpSocket::bind(&local_addrs).map_err(|_| ConnectError::BadPortBound)?;
         socket.set_read_timeout(Some(Duration::from_secs(5)))?;
         Ok(Self { socket })
     }
@@ -46,7 +46,7 @@ impl UdpConnection {
     pub fn peer_addr(&self) -> SocketAddr {
         match self.socket.peer_addr() {
             Ok(a) => a,
-            Err(_) => SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 55331),
+            Err(_) => SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 55330),
         }
     }
 }
