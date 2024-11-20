@@ -1,4 +1,5 @@
 use rand::Error;
+use rand::Rng;
 use rand::RngCore;
 use smart_home::devices::*;
 use smart_home::info_provider_mod::*;
@@ -16,8 +17,7 @@ use udp::connection::*;
 use udp::error::ConnectError;
 
 fn main() {
-    let (temp_sender, term_receiver) = mpsc::channel::<u32>();
-    run_therm_thread(temp_sender, term_receiver);
+    run_therm_thread();
 }
 
 /// Create a new smart thermometer
@@ -35,15 +35,17 @@ fn create_thermometer() -> SmartThermometer {
 
 /// Create new UdpConnection for send temperature to the server
 fn create_connection() -> UdpConnection {
-    UdpConnection::bind_port("127.0.0.1:808080")
+    UdpConnection::bind_port("127.0.0.1:55330")
         .map_err(|e| ConnectError::from(e))
         .unwrap()
 }
 
-fn run_therm_thread(tx: Sender<u32>, rx: Receiver<u32>) -> i32 {
+fn run_therm_thread() -> i32 {
+    let (tx, rx) = mpsc::channel::<u32>();
     let connection = Arc::new(Mutex::new(create_connection()));
     let therm = Arc::new(Mutex::new(create_thermometer()));
-    thread::spawn(move || loop {
+    let t = thread::spawn(move || loop {
+        println!("Sleep in nested thread");
         let received = match rx.recv() {
             Ok(r) => Some(r),
             Err(_) => None,
@@ -58,9 +60,14 @@ fn run_therm_thread(tx: Sender<u32>, rx: Receiver<u32>) -> i32 {
             conn_lock.peer_addr(),
         );
     });
-    for _ in 0..100 {
-        tx.send(rand::thread_rng().next_u32()).unwrap();
+    for _ in 0..5 {
+        let temperature = rand::thread_rng().gen_range(0u32..50u32);
+        match tx.send(temperature) {
+            Ok(_) => println!("Sent temp: {}", temperature),
+            Err(e) => eprintln!("{e}"),
+        };
         thread::sleep(Duration::from_millis(1000));
     }
+    let _ = t.join().unwrap();
     0
 }
