@@ -76,10 +76,11 @@ fn run_smart_house_server_thread() -> JoinHandle<()> {
     let connection = Arc::new(Mutex::new(create_connection("127.0.0.1:55330")));
     thread::spawn(move || {
         let conn_lock = connection.lock().unwrap();
-        loop {
+        for _ in 0..5 {
             match conn_lock.process_response() {
                 Ok(r) => {
-                    println!("Temperature in the kitchen: {r}")
+                    println!("Temperature in the kitchen: {r}");
+                    thread::sleep(Duration::from_millis(500));
                 }
                 Err(_) => {
                     println!("Sleep in server thread");
