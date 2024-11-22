@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+udp = { path = "../udp" }
 console_engine = "2.6.1"
 rand = "0.8.5"
 chrono = "0.4.38"
-udp = { path = "../udp" }
+cursive = "0.21.1"
+cursive_core = "0.4"
+crossbeam-channel = "0.5"
