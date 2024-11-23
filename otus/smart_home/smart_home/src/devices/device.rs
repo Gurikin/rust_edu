@@ -52,7 +52,7 @@ pub struct SmartSocket {
 }
 pub struct SmartThermometer {
     pub info: DeviceInfo,
-    pub temperature: u32,
+    pub temperature: f32,
 }
 
 pub trait Device {

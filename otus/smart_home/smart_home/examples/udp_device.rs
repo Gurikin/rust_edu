@@ -7,7 +7,7 @@ use cursive::Printer;
 use cursive::Vec2;
 use cursive::View;
 use cursive::{
-    views::{CircularFocus, Dialog, TextView},
+    views::{CircularFocus, Dialog},
     With as _,
 };
 use rand::Rng;
@@ -43,12 +43,12 @@ fn create_thermometer() -> SmartThermometer {
             device_type: DeviceType::Thermometer,
             description: "Outside thermometer in the bedroom".to_string(),
         },
-        temperature: 0,
+        temperature: 40.0,
     }
 }
 
-fn update_themrmometer(therm: &mut SmartThermometer, temp: u32) {
-    therm.temperature = temp
+fn update_themrmometer(therm: &mut SmartThermometer, temp: f32) {
+    therm.temperature += temp
 }
 
 /// Create new UdpConnection for send temperature to the server
@@ -65,11 +65,11 @@ fn run_therm_thread() -> JoinHandle<()> {
     thread::spawn(move || loop {
         update_themrmometer(
             &mut therm_ref.lock().unwrap(),
-            rand::thread_rng().gen_range(0u32..50u32),
+            rand::thread_rng().gen_range((std::f32::consts::PI)/2.0..(std::f32::consts::PI)).cos(),
         );
         let conn_lock = connection.lock().unwrap();
         let _ = conn_lock.process_request(
-            &therm.lock().unwrap().temperature.to_string(),
+            format!("{:.2}", &therm.lock().unwrap().temperature).trim(),
             "127.0.0.1:55330",
         );
     })
@@ -87,7 +87,7 @@ fn run_smart_house_server_thread(
                 Ok(r) => {
                     // println!("Sent temp = {r}");
                     if ui_sender
-                        .send(format!("Temperature in the kitchen: {}", r))
+                        .send(format!("Temperature in the kitchen: {}°C", r))
                         .is_err()
                     {
                         return;
@@ -112,9 +112,9 @@ fn create_ui(
     cb_sink: cursive::CbSink,
 ) -> ResizedView<CircularFocus<Dialog>> {
     // Creates a dialog with a single "Quit" button
-    Dialog::around(TextView::new("Thermometer data!").align(Align::center()))
-        .title("Cursive")
-        .content(ThermView::new(20, rx).max_size(Vec2::new(20, 10)))
+    Dialog::new()
+        .title("Global Freeze!")
+        .content(ThermView::new(40.0f32, rx).max_size(Vec2::new(20, 10)))
         .button("Start measure", move |_| {
             create_threads(ui_sender.clone(), cb_sink.clone())
         })
@@ -134,8 +134,8 @@ struct ThermView {
 
 impl ThermView {
     // Creates a new view with the given buffer size
-    fn new(start_temp: u32, rx: crossbeam_channel::Receiver<String>) -> Self {
-        let content = format!("Temperature in the kitchen: {}", start_temp);
+    fn new(start_temp: f32, rx: crossbeam_channel::Receiver<String>) -> Self {
+        let content = format!("Temperature in the kitchen: {:.2}°C", start_temp);
         ThermView { content, rx }
     }
 
