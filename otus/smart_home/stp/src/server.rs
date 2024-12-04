@@ -1,39 +1,40 @@
 use crate::error::{ConnectError, RequestError};
 use std::io;
-use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream, ToSocketAddrs};
+use std::net::SocketAddr;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream, ToSocketAddrs};
 
-/// STP сервер.
+// STP сервер.
 pub struct StpServer {
     tcp: TcpListener,
 }
 
 impl StpServer {
     /// Закрепляем сервер на сокете.
-    pub fn bind<Addrs>(addrs: Addrs) -> io::Result<Self>
+    pub async fn bind<Addrs>(addrs: Addrs) -> io::Result<Self>
     where
         Addrs: ToSocketAddrs,
     {
-        let tcp = TcpListener::bind(addrs)?;
+        let tcp = TcpListener::bind(addrs).await?;
         Ok(Self { tcp })
     }
 
     /// Принимаем входящее соединение и производим handshake.
-    pub fn accept(&self) -> Result<StpConnection, ConnectError> {
-        let (stream, _) = self.tcp.accept()?;
-        Self::try_handshake(stream)
+    pub async fn accept(&self) -> Result<StpConnection, ConnectError> {
+        let (stream, _) = self.tcp.accept().await?;
+        Self::try_handshake(stream).await
     }
 
     /// Проводим handshake, чтобы убедиться, что клиент поддерживает STP:
     /// 1) ожидаем байты "clnt",
     /// 1) отправляем байты "serv" в ответ.
-    fn try_handshake(mut stream: TcpStream) -> Result<StpConnection, ConnectError> {
+    async fn try_handshake(mut stream: TcpStream) -> Result<StpConnection, ConnectError> {
         let mut buf = [0; 4];
-        stream.read_exact(&mut buf)?;
+        stream.read_exact(&mut buf).await?;
         if &buf != b"clnt" {
             return Err(ConnectError::BadHandshake);
         }
-        stream.write_all(b"serv")?;
+        stream.write_all(b"serv").await?;
         Ok(StpConnection { stream })
     }
 }
@@ -47,13 +48,13 @@ pub struct StpConnection {
 impl StpConnection {
     /// Обрабатываем запрос и возвращаем ответ используя логику
     /// предоставленную вызывающей стороной.
-    pub fn process_request<F>(&mut self, handler: F) -> Result<(), RequestError>
+    pub async fn process_request<F>(&mut self, handler: F) -> Result<(), RequestError>
     where
         F: FnOnce(String) -> String,
     {
-        let request = super::recv_string(&mut self.stream)?;
+        let request = super::recv_string(&mut self.stream).await?;
         let response = handler(request);
-        super::send_string(&response, &mut self.stream)?;
+        super::send_string(&response, &mut self.stream).await?;
         Ok(())
     }
 
