@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 smart_house_tcp_client = { path = "../smart_house_tcp_client" }
+tokio = { version = "1", features = ["full"] }

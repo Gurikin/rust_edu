@@ -10,3 +10,4 @@ stp = { path = "../stp" }
 smart_home = { path = "../smart_home" }
 chrono = "0.4.38"
 rand = "0.8.5"
+tokio = { version = "1", features = ["full"] }

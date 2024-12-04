@@ -1,7 +1,8 @@
 use std::error::Error;
 use std::fs;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     let addr = get_server_addr();
 
     // Читаем аргументы командной строки.
@@ -13,14 +14,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Performing action: {action}...");
 
     // Соединяемся с сервером чата.
-    let mut client = smart_house_tcp_client::SmartHouseTcpClient::new(addr)?;
+    let mut client = smart_house_tcp_client::SmartHouseTcpClient::new(addr).await?;
 
     if action == "switch_state" {
         let Some(msg) = cli_args.next() else {
             return Err(String::from("No message provided").into());
         };
         // Изменяем состояние устройства.
-        client.switch_state(&msg)?;
+        match client.switch_state(&msg).await {
+            Ok(response) => println!("{}", response),
+            Err(e) => println!("{}", e),
+        };
         return Ok(());
     }
 
@@ -28,8 +32,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         let Some(msg) = cli_args.next() else {
             return Err(String::from("No message provided").into());
         };
-        // Изменяем состояние устройства.
-        client.get_state(&msg)?;
+        // Получаем состояние устройства.
+        match client.get_state(&msg).await {
+            Ok(response) => println!("{}", response),
+            Err(e) => println!("{}", e),
+        };
+
         return Ok(());
     }
 
@@ -38,7 +46,33 @@ fn main() -> Result<(), Box<dyn Error>> {
         let Some(msg) = cli_args.next() else {
             return Err(String::from("No message provided").into());
         };
-        client.add_room(&msg)?;
+        //Добавляем комнату
+        match client.add_room(&msg).await {
+            Ok(response) => println!("{}", response),
+            Err(e) => println!("{}", e),
+        };
+        return Ok(());
+    }
+
+    if action == "add_device" {
+        // Отправляем новое сообщение.
+        let Some(msg) = cli_args.next() else {
+            return Err(String::from("No message provided").into());
+        };
+        //Добавляем комнату
+        match client.add_device(&msg).await {
+            Ok(response) => println!("{}", response),
+            Err(e) => println!("{}", e),
+        };
+        return Ok(());
+    }
+
+    if action == "create_report" {
+        //Получаем отчет о состоянии дома
+        match client.create_report().await {
+            Ok(response) => println!("{}", response),
+            Err(e) => println!("{}", e),
+        };
         return Ok(());
     }
 

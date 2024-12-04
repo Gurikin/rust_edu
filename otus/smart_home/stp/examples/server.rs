@@ -13,7 +13,8 @@ async fn process_connection(mut conn: StpConnection) -> Result<(), Box<dyn Error
     conn.process_request(|req| {
         assert_eq!(req, "Hello, server");
         format!("Hello, dear client")
-    }).await?;
+    })
+    .await?;
 
     Ok(())
 }

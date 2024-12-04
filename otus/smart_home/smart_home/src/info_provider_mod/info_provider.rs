@@ -16,10 +16,9 @@ where
             .unwrap()
             .insert(device.borrow().get_name(), device);
     } else {
-        return Err(format!(
-            "В данном провайдере отсутствует комната {}",
-            &apart_name
-        ));
+        let mut map: BTreeMap<String, T> = BTreeMap::new();
+        map.insert(device.borrow().get_name(), device);
+        devices.insert(apart_name.clone(), map);
     }
     Ok(true)
 }
@@ -52,12 +51,14 @@ where
     T: Borrow<dyn Device + 'a>,
 {
     if devices.contains_key(&apart_name) {
-        let device = devices
+        match devices
             .get_mut(&apart_name)
             .unwrap()
             .get_mut(device_name.as_str())
-            .unwrap();
-        Ok(device)
+        {
+            Some(d) => Ok(d),
+            None => Err(format!("Данный провайдер не содержит {}", &apart_name)),
+        }
     } else {
         Err(format!(
             "В данном провайдере отсутствует комната {}",

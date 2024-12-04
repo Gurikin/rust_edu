@@ -42,6 +42,23 @@ impl<'a> SmartHouse {
         }
     }
 
+    pub fn add_device(&mut self, apart_name: String, device_name: String) -> Result<bool, bool> {
+        match self.apartments.contains_key(&apart_name) {
+            true => self
+                .apartments
+                .get_mut(&apart_name)
+                .unwrap()
+                .add(device_name),
+            false => {
+                eprintln!(
+                    "Could not add device {} to apart {} because apart not exists",
+                    device_name, apart_name
+                );
+                Err(false)
+            }
+        }
+    }
+
     pub fn remove(&mut self, room_name: String) -> Result<bool, bool> {
         match self.apartments.contains_key(&room_name) {
             false => Err(false),
@@ -63,6 +80,7 @@ impl<'a> SmartHouse {
             .add(self.name.trim())
             .add("\n");
         for room in self.get_apartments().values() {
+            report = report.add(&room.get_name().add(":\n"));
             for device in room.get_devices() {
                 match info_provider.get_device_info(room.get_name(), device.clone()) {
                     Some(dr) => {
