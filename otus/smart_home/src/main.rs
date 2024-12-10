@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use smart_home::{
     devices::{DeviceInfo, DeviceType, SmartSocket},
-    info_provider_mod::OwningDeviceInfoProvider,
+    info_provider_mod::{Device, OwningDeviceInfoProvider},
     smart_house_mod::{Apartment, SmartHouse},
 };
 
@@ -22,10 +22,10 @@ fn main() {
     let living_room = Apartment::from_set(1, &devices_in_living_room);
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
-    room_devices.insert(socket_name.clone(), smart_socket);
+    room_devices.insert(socket_name.clone(), Device::SmartSocket(smart_socket));
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
 
     let apartments = vec![living_room];

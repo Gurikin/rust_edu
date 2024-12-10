@@ -26,7 +26,7 @@ fn test_report_from_owning_device_info_provider() {
     room_devices.insert(socket_name.clone(), smart_socket);
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
     assert!(info_provider
         .get_device_info(living_room.get_name(), socket_name.clone())
@@ -63,7 +63,7 @@ fn test_error_in_report() {
     room_devices.insert(unknown_socket_name.clone(), unknown_smart_socket);
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
 
     //Check that info provider contains smart socket

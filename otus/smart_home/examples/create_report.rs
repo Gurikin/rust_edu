@@ -23,7 +23,7 @@ fn main() {
     room_devices.insert(socket_name.clone(), smart_socket);
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
-        sockets: sockets_map,
+        devices: sockets_map,
     };
 
     let apartments = vec![living_room];

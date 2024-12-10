@@ -1,13 +1,6 @@
 use std::fmt;
 use std::ops::Add;
 
-pub struct DeviceInfo {
-    pub id: u8,
-    pub name: String,
-    pub device_type: DeviceType,
-    pub description: String,
-}
-
 #[derive(Debug, PartialEq)]
 pub enum DeviceType {
     PowerSocket,
@@ -20,6 +13,13 @@ impl fmt::Display for DeviceType {
         // or, alternatively:
         // fmt::Debug::fmt(self, f)
     }
+}
+
+pub struct DeviceInfo {
+    pub id: u8,
+    pub name: String,
+    pub device_type: DeviceType,
+    pub description: String,
 }
 
 impl DeviceInfo {
@@ -36,6 +36,7 @@ impl DeviceInfo {
             .add(self.description.to_string().trim())
     }
 }
+
 
 pub struct SmartSocket {
     pub info: DeviceInfo,
