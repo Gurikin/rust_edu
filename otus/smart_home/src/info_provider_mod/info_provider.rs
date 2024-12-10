@@ -149,7 +149,7 @@ fn test_owning_device_info_provider() {
     let living_room = crate::smart_house_mod::Apartment::from_set(1, &devices_in_living_room);
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
-    room_devices.insert(socket_name.clone(), smart_socket);
+    room_devices.insert(socket_name.clone(), Device::SmartSocket(smart_socket));
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
         devices: sockets_map,
@@ -193,18 +193,18 @@ fn test_borrowing_device_info_provider() {
     let devices_in_kitchen = vec![socket_name.clone(), term_name.clone()];
     let kitchen = crate::smart_house_mod::Apartment::from_vec(1, devices_in_kitchen);
 
-    let mut sockets_map = BTreeMap::new();
-    let mut socket_devices = BTreeMap::new();
-    socket_devices.insert(socket_name.clone(), &smart_socket);
-    sockets_map.insert(kitchen.get_name(), socket_devices);
+    let mut devices_map = BTreeMap::new();
+    let mut devices = BTreeMap::new();
+    let binding = Device::SmartSocket(smart_socket);
+    devices.insert(socket_name.clone(), &binding);
 
-    let mut terms_map = BTreeMap::new();
-    let mut therm_devices = BTreeMap::new();
-    therm_devices.insert(term_name.clone(), &test_therm);
-    terms_map.insert(kitchen.get_name(), therm_devices);
+    let binding = Device::Thermometer(test_therm);
+    devices.insert(term_name.clone(), &binding);
+
+    devices_map.insert(kitchen.get_name(), devices);
 
     let info_provider = BorrowingDeviceInfoProvider {
-        devices: sockets_map,
+        devices: devices_map,
     };
 
     assert!(info_provider
@@ -243,7 +243,7 @@ fn test_owning_device_info_storage() {
         devices: sockets_map,
     };
     assert!(info_provider
-        .add(living_room.get_name(), smart_socket)
+        .add(living_room.get_name(), Device::SmartSocket(smart_socket))
         .is_ok());
     assert!(info_provider
         .get_device_info(living_room.get_name(), socket_name.clone())
@@ -289,14 +289,13 @@ fn test_borrowing_device_info_storage() {
     // socket_devices.insert(socket_name.clone(), &smart_socket);
     sockets_map.insert(kitchen.get_name(), socket_devices);
 
-    let mut terms_map = BTreeMap::new();
-    let therm_devices = BTreeMap::new();
+    let mut terms_map: BTreeMap<String, BTreeMap<String, Device>> = BTreeMap::new();
+    let therm_devices: BTreeMap<String, Device> = BTreeMap::new();
     // therm_devices.insert(term_name.clone(), &test_therm);
     terms_map.insert(kitchen.get_name(), therm_devices);
 
     let mut info_provider = BorrowingDeviceInfoProvider {
         devices: sockets_map,
-        therms: terms_map,
     };
     assert!(info_provider
         .devices
@@ -309,8 +308,10 @@ fn test_borrowing_device_info_storage() {
         .unwrap()
         .is_empty());
 
-    assert!(info_provider.add(kitchen.get_name(), &smart_socket).is_ok());
-    assert!(info_provider.add(kitchen.get_name(), &test_therm).is_ok());
+    let binding = Device::SmartSocket(smart_socket);
+    assert!(info_provider.add(kitchen.get_name(), &binding).is_ok());
+    let binding = Device::Thermometer(test_therm);
+    assert!(info_provider.add(kitchen.get_name(), &binding).is_ok());
 
     assert!(info_provider
         .get_device_info(kitchen.get_name(), socket_name.clone())

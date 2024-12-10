@@ -23,7 +23,7 @@ fn test_report_from_owning_device_info_provider() {
     assert!(living_room.add(socket_name.clone()).is_ok());
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
-    room_devices.insert(socket_name.clone(), smart_socket);
+    room_devices.insert(socket_name.clone(), Device::SmartSocket(smart_socket));
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
         devices: sockets_map,
@@ -60,7 +60,7 @@ fn test_error_in_report() {
     };
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
-    room_devices.insert(unknown_socket_name.clone(), unknown_smart_socket);
+    room_devices.insert(unknown_socket_name.clone(), Device::SmartSocket(unknown_smart_socket));
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
         devices: sockets_map,
