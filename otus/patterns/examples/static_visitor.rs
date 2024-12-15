@@ -1,45 +1,59 @@
-use sprites::sprite::{StaticSprite, AnimatedSprite, Vector3D};
+use patterns::{
+    sprites::sprite::{
+        AnimatedSprite, BaseSprite, Point, Size, StaticSprite, Vector3D, Velocity,
+    },
+    visitors::static_visitor::{ResetVelocityVisitor, StepRightPositionVisitor},
+};
 
-pub trait Visitor {
-    fn visit_static(&self, static_sprite: &mut StaticSprite);
-    fn visit_animated(&self, animated_sprite: &mut AnimatedSprite);
-}
+fn main() {
+    let mut static_sprite = StaticSprite {
+        base: BaseSprite {
+            _id: 1,
+            name: "staticSprite".to_string(),
+            pos: Point { x: 0.0, y: 10.0 },
+        },
+        _size: Size {
+            _width: 10.0,
+            _length: 10.0,
+        },
+    };
+    let mut animated_sprite = AnimatedSprite {
+        base: BaseSprite {
+            _id: 2,
+            name: "animatedSprite".to_string(),
+            pos: Point { x: 0.0, y: 10.0 },
+        },
+        _size: Size {
+            _width: 10.0,
+            _length: 10.0,
+        },
+        velocity: Velocity {
+            direction: Vector3D {
+                _x: 1.0,
+                _y: 0.0,
+                _z: 0.0,
+            },
+            speed: 1.0,
+        },
+    };
 
-pub struct StepRightPositionVisitor {}
+    println!("\n\n\n========================= Base state =========================");
+    println!("{:?}", static_sprite);
+    println!("{:?}", animated_sprite);
+    println!("==============================================================\n\n\n");
 
-impl Visitor for StepRightPositionVisitor {
-    fn visit_static(&self, static_sprite: &mut StaticSprite) {
-        println!("Move {} to the right one px", static_sprite.base.name);
-        static_sprite.base.pos.x += 1.0;
-        println!("{:?}", static_sprite)
-    }
+    let step_right_visitor = StepRightPositionVisitor {};
+    let reset_velocity_visitor = ResetVelocityVisitor {};
 
-    fn visit_animated(&self, animated_sprite: &mut AnimatedSprite) {
-        println!("Move {} to the right one px", animated_sprite.base.name);
-        animated_sprite.base.pos.x += 1.0;
-        println!("{:?}", animated_sprite)
-    }
-}
+    println!("========================= Static sprite operations =========================");
+    static_sprite.accept(&step_right_visitor);
+    static_sprite.accept(&reset_velocity_visitor);
+    println!("============================================================================\n\n\n");
 
-pub struct ResetVelocityVisitor {}
-
-impl Visitor for ResetVelocityVisitor {
-    fn visit_static(&self, static_sprite: &mut StaticSprite) {
-        println!("Unsupported operation");
-        println!("{:?}", static_sprite)
-    }
-
-    fn visit_animated(&self, animated_sprite: &mut AnimatedSprite) {
-        println!(
-            "Reset velocity for the {} sprite",
-            animated_sprite.base.name
-        );
-        animated_sprite.velocity.direction = Vector3D {
-            _x: 0.0,
-            _y: 0.0,
-            _z: 0.0,
-        };
-        animated_sprite.velocity.speed = 0.0;
-        println!("{:?}", animated_sprite)
-    }
+    println!("========================= Animated sprite operations =========================");
+    animated_sprite.accept(&step_right_visitor);
+    animated_sprite.accept(&reset_velocity_visitor);
+    println!(
+        "==============================================================================\n\n\n"
+    );
 }

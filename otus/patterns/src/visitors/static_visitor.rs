@@ -1,13 +1,13 @@
-use crate::sprites::sprite::{StaticSprite, AnimatedSprite, Vector3D};
+use crate::sprites::sprite::{AnimatedSprite, StaticSprite, Vector3D};
 
-pub trait Visitor {
+pub trait StaticVisitor {
     fn visit_static(&self, static_sprite: &mut StaticSprite);
     fn visit_animated(&self, animated_sprite: &mut AnimatedSprite);
 }
 
 pub struct StepRightPositionVisitor {}
 
-impl Visitor for StepRightPositionVisitor {
+impl StaticVisitor for StepRightPositionVisitor {
     fn visit_static(&self, static_sprite: &mut StaticSprite) {
         println!("Move {} to the right one px", static_sprite.base.name);
         static_sprite.base.pos.x += 1.0;
@@ -23,7 +23,7 @@ impl Visitor for StepRightPositionVisitor {
 
 pub struct ResetVelocityVisitor {}
 
-impl Visitor for ResetVelocityVisitor {
+impl StaticVisitor for ResetVelocityVisitor {
     fn visit_static(&self, static_sprite: &mut StaticSprite) {
         println!("Unsupported operation");
         println!("{:?}", static_sprite)
