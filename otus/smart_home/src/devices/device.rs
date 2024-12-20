@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops::Add;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DeviceType {
     PowerSocket,
     Thermometer,
@@ -15,6 +15,7 @@ impl fmt::Display for DeviceType {
     }
 }
 
+#[derive(Clone)]
 pub struct DeviceInfo {
     pub id: u8,
     pub name: String,
@@ -37,12 +38,14 @@ impl DeviceInfo {
     }
 }
 
-
+#[derive(Clone)]
 pub struct SmartSocket {
     pub info: DeviceInfo,
     pub is_switch_on: bool,
     pub current_power: u32,
 }
+
+#[derive(Clone)]
 pub struct SmartThermometer {
     pub info: DeviceInfo,
     pub temperature: u32,

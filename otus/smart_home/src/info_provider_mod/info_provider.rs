@@ -2,6 +2,8 @@ use crate::devices::*;
 use std::collections::*;
 use std::option::Option;
 
+use super::inf_prov_err::DeviceInfoStorageError;
+
 pub enum Device {
     SmartSocket(SmartSocket),
     Thermometer(SmartThermometer),
@@ -59,49 +61,63 @@ impl DeviceInfoProvider for BorrowingDeviceInfoProvider<'_> {
 }
 
 pub trait DeviceInfoStorage {
-    fn add(&mut self, apart_name: String, device: Device) -> Result<bool, String>;
-    fn remove(&mut self, apart_name: String, device: Device) -> Result<bool, String>;
+    fn add(&mut self, apart_name: String, device: Device) -> Result<bool, DeviceInfoStorageError>;
+    fn remove(
+        &mut self,
+        apart_name: String,
+        device: Device,
+    ) -> Result<bool, DeviceInfoStorageError>;
 }
 
 pub trait DeviceInfoStorageRef<'a> {
-    fn add(&mut self, apart_name: String, device: &'a Device) -> Result<bool, String>;
-    fn remove(&mut self, apart_name: String, device: &'a Device) -> Result<bool, String>;
+    fn add(
+        &mut self,
+        apart_name: String,
+        device: &'a Device,
+    ) -> Result<bool, DeviceInfoStorageError>;
+    fn remove(
+        &mut self,
+        apart_name: String,
+        device: &'a Device,
+    ) -> Result<bool, DeviceInfoStorageError>;
 }
 
 impl DeviceInfoStorage for OwningDeviceInfoProvider {
-    fn add(&mut self, apart_name: String, device: Device) -> Result<bool, String> {
+    fn add(&mut self, apart_name: String, device: Device) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
-            self.devices
-                .get_mut(&apart_name)
-                .unwrap()
-                .insert(device.get_name().clone(), device);
-            Ok(true)
+        self.devices
+            .get_mut(&apart_name)
+            .unwrap()
+            .insert(device.get_name().clone(), device);
+        Ok(true)
         } else {
-            Err(format!(
-                "В данном провайдере отсутствует комната {}",
-                &apart_name
-            ))
+        Err(DeviceInfoStorageError::AddError(apart_name))
         }
     }
 
-    fn remove(&mut self, apart_name: String, device: Device) -> Result<bool, String> {
+    fn remove(
+        &mut self,
+        apart_name: String,
+        device: Device,
+    ) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
-            self.devices
-                .get_mut(&apart_name)
-                .unwrap()
-                .remove(&device.get_name());
-            Ok(true)
+        self.devices
+            .get_mut(&apart_name)
+            .unwrap()
+            .remove(&device.get_name());
+        Ok(true)
         } else {
-            Err(format!(
-                "В данном провайдере отсутствует комната {}",
-                &apart_name
-            ))
+            Err(DeviceInfoStorageError::RemoveError(apart_name))
         }
     }
 }
 
 impl<'a> DeviceInfoStorageRef<'a> for BorrowingDeviceInfoProvider<'a> {
-    fn add(&mut self, apart_name: String, device: &'a Device) -> Result<bool, String> {
+    fn add(
+        &mut self,
+        apart_name: String,
+        device: &'a Device,
+    ) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
             self.devices
                 .get_mut(&apart_name)
@@ -109,14 +125,15 @@ impl<'a> DeviceInfoStorageRef<'a> for BorrowingDeviceInfoProvider<'a> {
                 .insert(device.get_name().clone(), device);
             Ok(true)
         } else {
-            Err(format!(
-                "В данном провайдере отсутствует комната {}",
-                &apart_name
-            ))
+            Err(DeviceInfoStorageError::AddError(apart_name))
         }
     }
 
-    fn remove(&mut self, apart_name: String, device: &'a Device) -> Result<bool, String> {
+    fn remove(
+        &mut self,
+        apart_name: String,
+        device: &'a Device,
+    ) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
             self.devices
                 .get_mut(&apart_name)
@@ -124,10 +141,7 @@ impl<'a> DeviceInfoStorageRef<'a> for BorrowingDeviceInfoProvider<'a> {
                 .remove(&device.get_name());
             Ok(true)
         } else {
-            Err(format!(
-                "В данном провайдере отсутствует комната {}",
-                &apart_name
-            ))
+            Err(DeviceInfoStorageError::RemoveError(apart_name))
         }
     }
 }
@@ -243,7 +257,7 @@ fn test_owning_device_info_storage() {
         devices: sockets_map,
     };
     assert!(info_provider
-        .add(living_room.get_name(), Device::SmartSocket(smart_socket))
+        .add(living_room.get_name(), Device::SmartSocket(smart_socket.clone()))
         .is_ok());
     assert!(info_provider
         .get_device_info(living_room.get_name(), socket_name.clone())
@@ -254,6 +268,14 @@ fn test_owning_device_info_storage() {
             .get_device_info(living_room.get_name(), socket_name.clone())
             .get_or_insert(String::from(""))
     );
+
+    let add_err = info_provider.add("Unknown_apartment".to_string(), Device::SmartSocket(smart_socket.clone()));
+    assert!(&add_err.is_err());
+    println!("{}", add_err.err().unwrap());
+
+    let rem_err = info_provider.remove("Unknown_apartment".to_string(), Device::SmartSocket(smart_socket));
+    assert!(&rem_err.is_err());
+    println!("{}", rem_err.err().unwrap());
 }
 
 #[test]
@@ -325,4 +347,12 @@ fn test_borrowing_device_info_storage() {
             .get_device_info(kitchen.get_name(), term_name.clone())
             .get_or_insert(String::from("where is my info?"))
     );
+
+    let add_err = info_provider.add("Unknown_apartment".to_string(), &binding);
+    assert!(&add_err.is_err());
+    println!("{}", add_err.err().unwrap());
+
+    let rem_err = info_provider.remove("Unknown_apartment".to_string(), &binding);
+    assert!(&rem_err.is_err());
+    println!("{}", rem_err.err().unwrap());
 }

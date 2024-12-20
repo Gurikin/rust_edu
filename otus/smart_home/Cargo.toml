@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 console_engine = "2.6.1"
 rand = "0.9.0-alpha.2"
+thiserror = "2.0.8"
