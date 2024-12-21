@@ -4,6 +4,8 @@ use crate::smart_house_mod::apartment::Apartment;
 use std::collections::BTreeMap;
 use std::ops::Add;
 
+use super::smart_house_err::SmartHouseError;
+
 pub struct SmartHouse<'a> {
     name: String,
     apartments: BTreeMap<String, &'a Apartment>,
@@ -33,9 +35,9 @@ impl<'a> SmartHouse<'a> {
             .collect()
     }
 
-    pub fn add(&mut self, apartment: &'a Apartment) -> Result<bool, bool> {
+    pub fn add(&mut self, apartment: &'a Apartment) -> Result<bool, SmartHouseError> {
         match self.apartments.contains_key(&apartment.get_name()) {
-            true => Err(false),
+            true => Err(SmartHouseError::AddError(apartment.get_name(), self.get_name().clone())),
             false => {
                 self.apartments.insert(apartment.get_name(), apartment);
                 Ok(true)
@@ -43,9 +45,9 @@ impl<'a> SmartHouse<'a> {
         }
     }
 
-    pub fn remove(&mut self, room_name: String) -> Result<bool, bool> {
+    pub fn remove(&mut self, room_name: String) -> Result<bool, SmartHouseError> {
         match self.apartments.contains_key(&room_name) {
-            false => Err(false),
+            false => Err(SmartHouseError::RemoveError(room_name, self.name.clone())),
             true => {
                 self.apartments.remove(&room_name);
                 Ok(true)
@@ -53,7 +55,7 @@ impl<'a> SmartHouse<'a> {
         }
     }
 
-    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> Result<String, String> {
+    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> Result<String, SmartHouseError> {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
@@ -64,7 +66,7 @@ impl<'a> SmartHouse<'a> {
                         report = report.add(&dr).add("\n");
                     }
                     None => {
-                        return Err(format!("In a devices in smart_house {}, was not found devices from info_provider.", self.get_name()));
+                        return Err(SmartHouseError::GetReportError(device, room.get_name()));
                     }
                 }
             }
@@ -90,4 +92,12 @@ fn test_owning_device_info_provider() {
     assert!(smart_house
         .get_apartments()
         .contains_key(&living_room.get_name()));
+
+    let add_err = smart_house.add(&living_room);
+    assert!(add_err.is_err());
+    println!("{}", add_err.err().unwrap());
+
+    let remove_err = smart_house.remove("Unknown_apartment".to_string());
+    assert!(remove_err.is_err());
+    println!("{}", remove_err.err().unwrap());
 }
