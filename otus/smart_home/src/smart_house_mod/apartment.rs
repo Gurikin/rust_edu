@@ -3,6 +3,7 @@ use std::ops::Add;
 
 use super::smart_house_err::ApartmentError;
 
+#[derive(Clone)]
 pub struct Apartment {
     name: String,
     devices: BTreeSet<String>,

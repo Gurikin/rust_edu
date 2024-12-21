@@ -37,7 +37,10 @@ impl<'a> SmartHouse<'a> {
 
     pub fn add(&mut self, apartment: &'a Apartment) -> Result<bool, SmartHouseError> {
         match self.apartments.contains_key(&apartment.get_name()) {
-            true => Err(SmartHouseError::AddError(apartment.get_name(), self.get_name().clone())),
+            true => Err(SmartHouseError::Add(
+                apartment.get_name(),
+                self.get_name().clone(),
+            )),
             false => {
                 self.apartments.insert(apartment.get_name(), apartment);
                 Ok(true)
@@ -47,7 +50,7 @@ impl<'a> SmartHouse<'a> {
 
     pub fn remove(&mut self, room_name: String) -> Result<bool, SmartHouseError> {
         match self.apartments.contains_key(&room_name) {
-            false => Err(SmartHouseError::RemoveError(room_name, self.name.clone())),
+            false => Err(SmartHouseError::Remove(room_name, self.name.clone())),
             true => {
                 self.apartments.remove(&room_name);
                 Ok(true)
@@ -55,7 +58,10 @@ impl<'a> SmartHouse<'a> {
         }
     }
 
-    pub fn create_report<T: DeviceInfoProvider>(&self, info_provider: T) -> Result<String, SmartHouseError> {
+    pub fn create_report<T: DeviceInfoProvider>(
+        &self,
+        info_provider: T,
+    ) -> Result<String, SmartHouseError> {
         let mut report = String::from("Report for Smart House:\t")
             .add(self.name.trim())
             .add("\n");
@@ -66,7 +72,7 @@ impl<'a> SmartHouse<'a> {
                         report = report.add(&dr).add("\n");
                     }
                     None => {
-                        return Err(SmartHouseError::GetReportError(device, room.get_name()));
+                        return Err(SmartHouseError::GetReport(device, self.get_name().clone()));
                     }
                 }
             }

@@ -85,13 +85,13 @@ pub trait DeviceInfoStorageRef<'a> {
 impl DeviceInfoStorage for OwningDeviceInfoProvider {
     fn add(&mut self, apart_name: String, device: Device) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
-        self.devices
-            .get_mut(&apart_name)
-            .unwrap()
-            .insert(device.get_name().clone(), device);
-        Ok(true)
+            self.devices
+                .get_mut(&apart_name)
+                .unwrap()
+                .insert(device.get_name().clone(), device);
+            Ok(true)
         } else {
-        Err(DeviceInfoStorageError::AddError(apart_name))
+            Err(DeviceInfoStorageError::AddError(apart_name))
         }
     }
 
@@ -101,11 +101,11 @@ impl DeviceInfoStorage for OwningDeviceInfoProvider {
         device: Device,
     ) -> Result<bool, DeviceInfoStorageError> {
         if self.devices.contains_key(&apart_name) {
-        self.devices
-            .get_mut(&apart_name)
-            .unwrap()
-            .remove(&device.get_name());
-        Ok(true)
+            self.devices
+                .get_mut(&apart_name)
+                .unwrap()
+                .remove(&device.get_name());
+            Ok(true)
         } else {
             Err(DeviceInfoStorageError::RemoveError(apart_name))
         }
@@ -257,7 +257,10 @@ fn test_owning_device_info_storage() {
         devices: sockets_map,
     };
     assert!(info_provider
-        .add(living_room.get_name(), Device::SmartSocket(smart_socket.clone()))
+        .add(
+            living_room.get_name(),
+            Device::SmartSocket(smart_socket.clone())
+        )
         .is_ok());
     assert!(info_provider
         .get_device_info(living_room.get_name(), socket_name.clone())
@@ -269,11 +272,17 @@ fn test_owning_device_info_storage() {
             .get_or_insert(String::from(""))
     );
 
-    let add_err = info_provider.add("Unknown_apartment".to_string(), Device::SmartSocket(smart_socket.clone()));
+    let add_err = info_provider.add(
+        "Unknown_apartment".to_string(),
+        Device::SmartSocket(smart_socket.clone()),
+    );
     assert!(&add_err.is_err());
     println!("{}", add_err.err().unwrap());
 
-    let rem_err = info_provider.remove("Unknown_apartment".to_string(), Device::SmartSocket(smart_socket));
+    let rem_err = info_provider.remove(
+        "Unknown_apartment".to_string(),
+        Device::SmartSocket(smart_socket),
+    );
     assert!(&rem_err.is_err());
     println!("{}", rem_err.err().unwrap());
 }

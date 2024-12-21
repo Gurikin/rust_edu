@@ -1,6 +1,7 @@
 use smart_home::devices::*;
 use smart_home::info_provider_mod::*;
 use smart_home::smart_house_mod::*;
+use smart_house_err::SmartHouseError;
 use std::collections::{BTreeMap, BTreeSet};
 
 mod common;
@@ -60,7 +61,10 @@ fn test_error_in_report() {
     };
     let mut sockets_map = BTreeMap::new();
     let mut room_devices = BTreeMap::new();
-    room_devices.insert(unknown_socket_name.clone(), Device::SmartSocket(unknown_smart_socket));
+    room_devices.insert(
+        unknown_socket_name.clone(),
+        Device::SmartSocket(unknown_smart_socket),
+    );
     sockets_map.insert(living_room.get_name(), room_devices);
     let info_provider = OwningDeviceInfoProvider {
         devices: sockets_map,
@@ -68,19 +72,17 @@ fn test_error_in_report() {
 
     //Check that info provider contains smart socket
     assert!(info_provider
-        .get_device_info(living_room.get_name(), unknown_socket_name.clone())
+        .get_device_info(living_room.get_name().clone(), unknown_socket_name.clone())
         .is_some());
 
-    let apartments = vec![living_room];
+    let apartments = vec![living_room.clone()];
     let smart_house = SmartHouse::new("Cottage", &apartments);
     let report = smart_house.create_report(info_provider);
     assert!(report.is_err());
-    assert!(report.err().unwrap().contains(
-        format!(
-            "In a devices in smart_house {}, was not found devices from info_provider.",
-            smart_house.get_name()
-        )
-        .to_string()
-        .trim()
-    ));
+    let err_text = report.err().unwrap().to_string();
+    assert_eq!(
+        SmartHouseError::GetReport(socket_name, smart_house.get_name().to_string()).to_string(),
+        err_text.clone()
+    );
+    println!("{}", err_text);
 }
