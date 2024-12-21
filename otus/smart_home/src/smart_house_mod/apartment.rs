@@ -1,6 +1,8 @@
 use std::collections::BTreeSet;
 use std::ops::Add;
 
+use super::smart_house_err::ApartmentError;
+
 pub struct Apartment {
     name: String,
     devices: BTreeSet<String>,
@@ -29,17 +31,17 @@ impl Apartment {
         local_devices.iter().cloned().collect()
     }
 
-    pub fn add(&mut self, device_name: String) -> Result<bool, bool> {
-        match self.devices.insert(device_name) {
+    pub fn add(&mut self, device_name: String) -> Result<bool, ApartmentError> {
+        match self.devices.insert(device_name.clone()) {
             true => Ok(true),
-            false => Err(false),
+            false => Err(ApartmentError::AddError(self.get_name(), device_name)),
         }
     }
 
-    pub fn remove(&mut self, device_name: String) -> Result<bool, bool> {
+    pub fn remove(&mut self, device_name: String) -> Result<bool, ApartmentError> {
         match self.devices.remove(&device_name) {
             true => Ok(true),
-            false => Err(false),
+            false => Err(ApartmentError::RemoveError(self.get_name(), device_name)),
         }
     }
 }
@@ -55,9 +57,6 @@ fn test_owning_device_info_provider() {
     assert!(living_room
         .add(String::from("computer_socket_name"))
         .is_ok());
-    assert!(living_room
-        .add(String::from("computer_socket_name"))
-        .is_err());
     assert_eq!(
         true,
         living_room
@@ -65,4 +64,12 @@ fn test_owning_device_info_provider() {
             .ok()
             .unwrap()
     );
+
+    let add_err = living_room.add(String::from("computer_socket_name"));
+    assert!(add_err.is_err());
+    println!("{}", add_err.err().unwrap());
+
+    let remove_err = living_room.remove(String::from("unknown_device"));
+    assert!(remove_err.is_err());
+    println!("{}", remove_err.err().unwrap());
 }
